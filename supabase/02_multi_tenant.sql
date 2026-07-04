@@ -23,7 +23,7 @@ WITH CHECK (auth.uid() = user_id);
 CREATE TABLE IF NOT EXISTS public.user_saved_jobs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    job_id TEXT NOT NULL REFERENCES public.jobs(id) ON DELETE CASCADE,
+    job_id UUID NOT NULL REFERENCES public.jobs(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(user_id, job_id)
 );

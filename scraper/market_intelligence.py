@@ -38,20 +38,20 @@ def extract_insights_locally(raw_posts):
     logger.info("Using local heuristics for Market Intelligence (Gemini unavailable)...")
     insights = []
     
-    # Common tech skills to look for
-    tech_skills = ["python", "react", "node", "aws", "docker", "kubernetes", "sql", "postgres", "next.js", "java", "c++", "go", "rust"]
+    # Broader range of skills across different industries
+    broad_skills = ["python", "react", "excel", "sql", "salesforce", "marketing", "management", "leadership", "aws", "data analysis", "design", "agile", "scrum", "finance", "communication"]
     
     # Basic sentiment keywords
     positive_words = ["offer", "hired", "accept", "success", "growth", "learning", "passed"]
-    negative_words = ["layoff", "laid off", "reject", "ghosted", "tough", "bad", "rescinded", "freeze"]
+    negative_words = ["layoff", "laid off", "reject", "ghosted", "tough", "bad", "rescinded", "freeze", "unemployed"]
     
     for post in raw_posts:
         text = (post.get('title', '') + " " + post.get('text', '')).lower()
         
         # Detect skills
-        detected_skills = [skill for skill in tech_skills if skill in text]
+        detected_skills = [skill for skill in broad_skills if skill in text]
         
-        # Only include posts that actually mention tech skills or career keywords
+        # Only include posts that actually mention skills or career keywords
         if not detected_skills and not any(w in text for w in positive_words + negative_words):
             continue
             
@@ -68,13 +68,12 @@ def extract_insights_locally(raw_posts):
         insights.append({
             "source_type": post['source_type'],
             "author": post['author'],
-            "content_summary": post['title'][:150] + "...", # Just use the title as the summary
+            "content_summary": post['title'][:150] + "...", 
             "trending_skills_detected": detected_skills,
             "sentiment": sentiment,
             "url": post['url']
         })
         
-    # Return top 20 to avoid spamming the DB
     return insights[:20]
 
 def extract_insights_with_gemini(raw_posts):
@@ -87,13 +86,13 @@ def extract_insights_with_gemini(raw_posts):
     model = genai.GenerativeModel('gemini-2.5-flash')
 
     prompt = f"""
-    You are an expert tech career analyst. I am giving you a list of recent trending community posts from Reddit.
-    Your goal is to analyze them and extract 'Market Intelligence' regarding software engineering, tech careers, and skills.
+    You are an expert career analyst. I am giving you a list of recent trending community posts from Reddit.
+    Your goal is to analyze them and extract 'Market Intelligence' regarding jobs, hiring trends, and skills across ALL industries (tech, finance, marketing, healthcare, etc.).
     
     Raw Posts Data:
     {json.dumps(raw_posts, indent=2)}
 
-    For each post that is relevant to tech careers, skills, or hiring trends, generate a JSON object. 
+    For each post that is relevant to careers, skills, or hiring trends, generate a JSON object. 
     Ignore posts that are irrelevant (e.g., memes, unrelated questions).
     
     Output a JSON array of objects with this EXACT structure (no markdown blocks, just raw JSON):
@@ -101,8 +100,8 @@ def extract_insights_with_gemini(raw_posts):
       {{
         "source_type": "reddit",
         "author": "r/...",
-        "content_summary": "A 1-2 sentence summary of what this post indicates about the market/skills.",
-        "trending_skills_detected": ["python", "react", "aws"], // Only include specific tech skills mentioned or implied
+        "content_summary": "A 1-2 sentence summary of what this post indicates about the job market or required skills.",
+        "trending_skills_detected": ["excel", "project management", "python"], // Extract ANY professional skill mentioned
         "sentiment": "Positive", // Or "Negative", "Neutral"
         "url": "url from the raw data"
       }}
@@ -123,10 +122,11 @@ def extract_insights_with_gemini(raw_posts):
         return extract_insights_locally(raw_posts)
 
 def run_intelligence():
-    # 1. Gather Raw Data
+    # 1. Gather Raw Data across broad career subreddits
     logger.info("Gathering raw data from communities...")
     raw_posts = []
-    for sub in ["cscareerquestions", "dataengineering", "artificial", "devops"]:
+    # Broadened subreddits to capture all roles, not just software
+    for sub in ["jobs", "careerguidance", "recruitinghell", "cscareerquestions", "marketing", "FinancialCareers"]:
         raw_posts.extend(get_reddit_posts(sub))
     
     if not raw_posts:

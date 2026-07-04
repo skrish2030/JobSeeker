@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import JobCard from '@/components/JobCard';
 
 export default function InterestedPage() {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -72,33 +73,12 @@ export default function InterestedPage() {
           ) : (
             <div className="grid gap-4">
               {jobs.map((job) => (
-                <div key={job.id} className="bg-[#15121E] border border-[#ffffff10] p-6 rounded-2xl relative overflow-hidden flex flex-col">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-100 mb-1">{job.title}</h3>
-                      <div className="text-indigo-300 font-medium">{job.company}</div>
-                    </div>
-                    <button 
-                      onClick={() => removeJob(job.id)}
-                      className="p-2 bg-indigo-500/20 text-indigo-400 hover:bg-red-500/20 hover:text-red-400 rounded-lg transition-colors border border-indigo-500/30 hover:border-red-500/30"
-                      title="Remove from Interested"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    </button>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 text-sm text-gray-400 mb-4">
-                    <span className="bg-[#ffffff05] px-2 py-1 rounded-md border border-[#ffffff0a]">{job.location}</span>
-                  </div>
-                  
-                  <p className="text-gray-400 text-sm line-clamp-2 mb-4 flex-1">
-                    {job.description?.replace(/<[^>]*>?/gm, '')}
-                  </p>
-
-                  <a href={job.job_url} target="_blank" rel="noreferrer" className="inline-flex justify-center items-center w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-colors mt-auto">
-                    View & Apply
-                  </a>
-                </div>
+                <JobCard 
+                  key={job.id} 
+                  job={job} 
+                  isSaved={true} 
+                  onToggleSave={removeJob} 
+                />
               ))}
             </div>
           )}

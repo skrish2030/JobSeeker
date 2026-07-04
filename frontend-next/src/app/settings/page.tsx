@@ -13,13 +13,16 @@ export default function SettingsPage() {
 
   const [activeTab, setActiveTab] = useState('targeting');
   const [apiKey, setApiKey] = useState('');
+  const [aiProvider, setAiProvider] = useState('gemini');
+  const [aiModel, setAiModel] = useState('gemini-2.5-flash');
 
   const supabase = createClient();
 
   useEffect(() => {
     fetchSettings();
-    const savedKey = localStorage.getItem('gemini_api_key') || '';
-    setApiKey(savedKey);
+    setApiKey(localStorage.getItem('ai_api_key') || localStorage.getItem('gemini_api_key') || '');
+    setAiProvider(localStorage.getItem('ai_provider') || 'gemini');
+    setAiModel(localStorage.getItem('ai_model') || 'gemini-2.5-flash');
   }, []);
 
   async function fetchSettings() {
@@ -42,8 +45,10 @@ export default function SettingsPage() {
     setSaveStatus('');
     
     if (activeTab === 'api') {
-      localStorage.setItem('gemini_api_key', apiKey);
-      setSaveStatus('API Key saved locally!');
+      localStorage.setItem('ai_api_key', apiKey);
+      localStorage.setItem('ai_provider', aiProvider);
+      localStorage.setItem('ai_model', aiModel);
+      setSaveStatus('API settings saved locally!');
       setIsSaving(false);
       setTimeout(() => setSaveStatus(''), 3000);
       return;
@@ -81,6 +86,35 @@ export default function SettingsPage() {
     }
   }
 
+  const getModelOptions = () => {
+    switch (aiProvider) {
+      case 'openai':
+        return [
+          { id: 'gpt-4o', name: 'GPT-4o (Most Capable)' },
+          { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Fastest)' }
+        ];
+      case 'anthropic':
+        return [
+          { id: 'claude-3-5-sonnet-20240620', name: 'Claude 3.5 Sonnet' },
+          { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' }
+        ];
+      case 'gemini':
+      default:
+        return [
+          { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+          { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' }
+        ];
+    }
+  };
+
+  const handleProviderChange = (newProvider: string) => {
+    setAiProvider(newProvider);
+    // Reset model to default of new provider
+    if (newProvider === 'openai') setAiModel('gpt-4o');
+    else if (newProvider === 'anthropic') setAiModel('claude-3-5-sonnet-20240620');
+    else setAiModel('gemini-2.5-flash');
+  };
+
   return (
     <>
       <header className="h-20 border-b border-[#ffffff10] bg-[#120F1A]/80 backdrop-blur-md px-8 flex items-center sticky top-0 z-10 shrink-0">
@@ -114,13 +148,13 @@ export default function SettingsPage() {
                 {activeTab === 'targeting' ? (
                   <><span>🎯</span> Job Targeting</>
                 ) : (
-                  <><span>🔑</span> API Integrations</>
+                  <><span>🔑</span> AI Settings</>
                 )}
               </h3>
               <p className="text-gray-400 text-sm mt-1">
                 {activeTab === 'targeting' 
                   ? 'Configure what roles the scraper looks for and emails to you.'
-                  : 'Manage your personal API keys for AI features.'}
+                  : 'Select your preferred AI provider, model, and manage your API keys.'}
               </p>
             </div>
 
@@ -173,13 +207,39 @@ export default function SettingsPage() {
                   </>
                 ) : (
                   <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">AI Provider</label>
+                        <select 
+                          value={aiProvider}
+                          onChange={(e) => handleProviderChange(e.target.value)}
+                          className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors appearance-none"
+                        >
+                          <option value="gemini">Google Gemini</option>
+                          <option value="openai">OpenAI ChatGPT</option>
+                          <option value="anthropic">Anthropic Claude</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">AI Model</label>
+                        <select 
+                          value={aiModel}
+                          onChange={(e) => setAiModel(e.target.value)}
+                          className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors appearance-none"
+                        >
+                          {getModelOptions().map((opt) => (
+                            <option key={opt.id} value={opt.id}>{opt.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">Gemini API Key</label>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2 capitalize">{aiProvider} API Key</label>
                       <input 
                         type="password" 
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="AIzaSy..."
+                        placeholder={aiProvider === 'openai' ? 'sk-...' : aiProvider === 'anthropic' ? 'sk-ant-...' : 'AIzaSy...'}
                         className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
                       />
                       <p className="text-xs text-gray-500 mt-2">Stored securely in your local browser storage for client-side AI features.</p>

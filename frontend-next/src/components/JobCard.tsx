@@ -27,13 +27,30 @@ export default function JobCard({ job, isSaved, onToggleSave }: JobCardProps) {
 
   const handleGenerateAI = async (type: 'score' | 'cover_letter') => {
     setIsAiLoading(true);
+    
+    // Retrieve AI Settings
+    const provider = localStorage.getItem('ai_provider') || 'gemini';
+    const model = localStorage.getItem('ai_model') || 'gemini-2.5-flash';
+    const apiKey = localStorage.getItem('ai_api_key') || localStorage.getItem('gemini_api_key') || '';
+    
     try {
       const response = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, jobDescription: job.description, jobTitle: job.title })
+        body: JSON.stringify({ 
+          type, 
+          jobDescription: job.description, 
+          jobTitle: job.title,
+          provider,
+          model,
+          apiKey
+        })
       });
+      
       const data = await response.json();
+      if (response.status !== 200) {
+        throw new Error(data.error || 'Failed to generate');
+      }
       
       if (type === 'score') {
         setMatchScore(data.score);

@@ -1,19 +1,36 @@
 import { NextResponse } from 'next/server';
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import { generateText, generateObject } from 'ai';
 import { z } from 'zod';
 
 export async function POST(request: Request) {
   try {
-    const { type, jobDescription, jobTitle } = await request.json();
+    const { type, jobDescription, jobTitle, provider = 'gemini', model = 'gemini-2.5-flash', apiKey } = await request.json();
 
     if (!jobDescription || !jobTitle) {
       return NextResponse.json({ error: 'Missing job details' }, { status: 400 });
     }
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Missing API Key in Settings' }, { status: 400 });
+    }
+
+    let aiModel;
+    if (provider === 'openai') {
+      const openai = createOpenAI({ apiKey });
+      aiModel = openai(model);
+    } else if (provider === 'anthropic') {
+      const anthropic = createAnthropic({ apiKey });
+      aiModel = anthropic(model);
+    } else {
+      const google = createGoogleGenerativeAI({ apiKey });
+      aiModel = google(model);
+    }
 
     if (type === 'score') {
       const { object } = await generateObject({
-        model: google('gemini-2.5-flash'),
+        model: aiModel,
         schema: z.object({
           score: z.number().describe('A score from 0 to 100 indicating how well a typical Mid/Senior Software Engineer matches this job.'),
           analysis: z.string().describe('A short 2-3 sentence explanation of the score, highlighting key skills required.')
@@ -34,7 +51,7 @@ export async function POST(request: Request) {
     
     if (type === 'cover_letter') {
       const { text } = await generateText({
-        model: google('gemini-2.5-flash'),
+        model: aiModel,
         system: "You are a Senior Executive Career Coach with 30+ years of experience placing candidates at top-tier companies. Your writing is persuasive, deeply strategic, highly professional, and devoid of fluff.",
         prompt: `Write a concise, modern cover letter for the following job that will guarantee the candidate an interview.
         Job Title: ${jobTitle}

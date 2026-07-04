@@ -1,18 +1,35 @@
 import { NextResponse } from 'next/server';
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
 export async function POST(request: Request) {
   try {
-    const { jobDescription } = await request.json();
+    const { jobDescription, provider = 'gemini', model = 'gemini-2.5-flash', apiKey } = await request.json();
 
     if (!jobDescription) {
       return NextResponse.json({ error: 'Missing job description' }, { status: 400 });
     }
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Missing API Key in Settings' }, { status: 400 });
+    }
+
+    let aiModel;
+    if (provider === 'openai') {
+      const openai = createOpenAI({ apiKey });
+      aiModel = openai(model);
+    } else if (provider === 'anthropic') {
+      const anthropic = createAnthropic({ apiKey });
+      aiModel = anthropic(model);
+    } else {
+      const google = createGoogleGenerativeAI({ apiKey });
+      aiModel = google(model);
+    }
 
     const { object } = await generateObject({
-      model: google('gemini-2.5-flash'),
+      model: aiModel,
       schema: z.object({
         questions: z.array(z.string()).describe('A list of exactly 5 interview questions based on the job description.')
       }),

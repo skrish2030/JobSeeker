@@ -13,13 +13,21 @@ export default function InterviewPage() {
   const generateQuestions = async () => {
     if (!jobDescription) return;
     setIsLoading(true);
+
+    const provider = localStorage.getItem('ai_provider') || 'gemini';
+    const model = localStorage.getItem('ai_model') || 'gemini-2.5-flash';
+    const apiKey = localStorage.getItem('ai_api_key') || localStorage.getItem('gemini_api_key') || '';
+
     try {
       const response = await fetch('/api/ai/interview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobDescription })
+        body: JSON.stringify({ jobDescription, provider, model, apiKey })
       });
       const data = await response.json();
+      if (response.status !== 200) {
+        throw new Error(data.error || 'Failed to generate');
+      }
       setQuestions(data.questions);
       setActiveQuestion(0);
     } catch (e) {

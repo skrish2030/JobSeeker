@@ -2,7 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.venv/
 venv/
+test_build_linux/
 .env
 
 # Node
@@ -11,6 +13,7 @@ node_modules/
 out/
 build/
 dist/
+.env.local
 
 # OS
 .DS_Store
@@ -21,8 +24,12 @@ data/
 mongodb_data/
 logs/
 
+# Large Files & Infrastructure
+.monitoring/
+terraform/.terraform/
 *.db
 *.log
 *.pdf
 *.csv
-*.json
+# Specific large JSON files (Do NOT ignore all *.json so we don't break package.json again!)
+us_companies_job_portals.json

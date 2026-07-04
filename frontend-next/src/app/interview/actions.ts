@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { generateText, CoreMessage } from 'ai'
+import { generateText } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
@@ -47,7 +47,7 @@ Conduct a realistic technical and behavioral interview.
 Ask one question at a time. Evaluate their answer, provide brief feedback, and then ask the next question.`
 
   try {
-    const coreMessages: CoreMessage[] = messages.map(msg => ({
+    const coreMessages: any[] = messages.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'assistant',
       content: msg.content
     }))

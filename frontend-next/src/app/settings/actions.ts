@@ -29,5 +29,4 @@ export async function saveSettings(formData: FormData) {
   }
 
   revalidatePath('/settings')
-  return { success: true }
 }

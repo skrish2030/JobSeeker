@@ -11,10 +11,15 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
 
+  const [activeTab, setActiveTab] = useState('targeting');
+  const [apiKey, setApiKey] = useState('');
+
   const supabase = createClient();
 
   useEffect(() => {
     fetchSettings();
+    const savedKey = localStorage.getItem('gemini_api_key') || '';
+    setApiKey(savedKey);
   }, []);
 
   async function fetchSettings() {
@@ -35,6 +40,14 @@ export default function SettingsPage() {
     e.preventDefault();
     setIsSaving(true);
     setSaveStatus('');
+    
+    if (activeTab === 'api') {
+      localStorage.setItem('gemini_api_key', apiKey);
+      setSaveStatus('API Key saved locally!');
+      setIsSaving(false);
+      setTimeout(() => setSaveStatus(''), 3000);
+      return;
+    }
     
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -58,7 +71,7 @@ export default function SettingsPage() {
     } catch (e: any) {
       console.error(e);
       if (e.message?.includes("does not exist")) {
-        setSaveStatus("Database setup required (Run SQL Migration 05).");
+        setSaveStatus("Database setup required.");
       } else {
         setSaveStatus('Failed to save settings.');
       }
@@ -77,65 +90,105 @@ export default function SettingsPage() {
       <div className="flex-1 overflow-y-auto p-8 bg-[#0A0710]">
         <div className="max-w-3xl mx-auto space-y-8">
           
+          {/* Tabs */}
+          <div className="flex gap-2 p-1 bg-[#15121E] border border-[#ffffff10] rounded-xl w-fit">
+            <button
+              onClick={() => setActiveTab('targeting')}
+              className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all ${activeTab === 'targeting' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200 hover:bg-[#ffffff05]'}`}
+            >
+              🎯 Job Targeting
+            </button>
+            <button
+              onClick={() => setActiveTab('api')}
+              className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all ${activeTab === 'api' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200 hover:bg-[#ffffff05]'}`}
+            >
+              🔑 API Keys
+            </button>
+          </div>
+
           <section className="bg-[#15121E] border border-[#ffffff10] p-8 rounded-3xl shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="mb-6 border-b border-[#ffffff10] pb-4">
               <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
-                <span>🎯</span> Job Targeting
+                {activeTab === 'targeting' ? (
+                  <><span>🎯</span> Job Targeting</>
+                ) : (
+                  <><span>🔑</span> API Integrations</>
+                )}
               </h3>
-              <p className="text-gray-400 text-sm mt-1">Configure what roles the scraper looks for and emails to you.</p>
+              <p className="text-gray-400 text-sm mt-1">
+                {activeTab === 'targeting' 
+                  ? 'Configure what roles the scraper looks for and emails to you.'
+                  : 'Manage your personal API keys for AI features.'}
+              </p>
             </div>
 
-            {isLoading ? (
+            {isLoading && activeTab === 'targeting' ? (
               <div className="flex justify-center py-10">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
               </div>
             ) : (
               <form onSubmit={saveSettings} className="space-y-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Target Job Title</label>
-                    <input 
-                      type="text" 
-                      value={jobTitle}
-                      onChange={(e) => setJobTitle(e.target.value)}
-                      placeholder="e.g. Software Engineer"
-                      className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Target Location</label>
-                    <input 
-                      type="text" 
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      placeholder="e.g. Remote, New York, NY"
-                      className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
-                      required
-                    />
-                  </div>
-                </div>
+                {activeTab === 'targeting' ? (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Target Job Title</label>
+                        <input 
+                          type="text" 
+                          value={jobTitle}
+                          onChange={(e) => setJobTitle(e.target.value)}
+                          placeholder="e.g. Software Engineer"
+                          className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Target Location</label>
+                        <input 
+                          type="text" 
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                          placeholder="e.g. Remote, New York, NY"
+                          className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
+                        />
+                      </div>
+                    </div>
 
-                <div className="flex items-center gap-4 p-4 bg-[#0A0710] border border-[#ffffff0a] rounded-xl">
-                  <div className="flex-1">
-                    <h4 className="text-gray-200 font-semibold">Daily Email Notifications</h4>
-                    <p className="text-gray-500 text-sm">Receive a daily digest of new jobs matching your criteria.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={emailNotifications}
-                      onChange={(e) => setEmailNotifications(e.target.checked)}
-                      className="sr-only peer" 
-                    />
-                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
-                  </label>
-                </div>
+                    <div className="flex items-center gap-4 p-4 bg-[#0A0710] border border-[#ffffff0a] rounded-xl">
+                      <div className="flex-1">
+                        <h4 className="text-gray-200 font-semibold">Daily Email Notifications</h4>
+                        <p className="text-gray-500 text-sm">Receive a daily digest of new jobs matching your criteria.</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={emailNotifications}
+                          onChange={(e) => setEmailNotifications(e.target.checked)}
+                          className="sr-only peer" 
+                        />
+                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                      </label>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">Gemini API Key</label>
+                      <input 
+                        type="password" 
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder="AIzaSy..."
+                        className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
+                      />
+                      <p className="text-xs text-gray-500 mt-2">Stored securely in your local browser storage for client-side AI features.</p>
+                    </div>
+                  </>
+                )}
 
                 <div className="flex items-center justify-between pt-4">
-                  <div className={`text-sm font-medium ${saveStatus.includes('success') ? 'text-green-400' : 'text-red-400'}`}>
+                  <div className={`text-sm font-medium ${saveStatus.includes('success') || saveStatus.includes('locally') ? 'text-green-400' : 'text-red-400'}`}>
                     {saveStatus}
                   </div>
                   <button 

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -27,9 +28,8 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
 
   return (
     <aside className="w-64 border-r border-[#ffffff10] bg-[#120F1A] flex flex-col hidden md:flex shrink-0 h-screen sticky top-0">
-      <div className="p-6 border-b border-[#ffffff10] flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-lg text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]">JS</div>
-        <h1 className="text-xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">JOBSEEKER</h1>
+      <div className="p-6 border-b border-[#ffffff10] flex items-center justify-center">
+        <Image src="/logo.png" alt="JobSeeker Logo" width={180} height={50} className="object-contain w-auto h-8" priority />
       </div>
       
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">

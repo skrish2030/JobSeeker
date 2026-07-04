@@ -100,9 +100,11 @@ export default function Home() {
         </form>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-8 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0A0710] to-[#0A0710]">
+      <div className="flex-1 overflow-y-auto p-8 bg-[#0A0710]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6 text-gray-100">{jobs.length} jobs matching your criteria</h2>
+          <h2 className="text-2xl font-bold mb-6 text-indigo-400">
+            Showing {jobs.length} {searchTerm || locationTerm ? 'matching jobs' : 'recent jobs'}
+          </h2>
           
           {loading ? (
             <div className="flex justify-center items-center py-20">

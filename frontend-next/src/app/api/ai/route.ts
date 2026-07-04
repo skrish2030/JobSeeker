@@ -18,13 +18,15 @@ export async function POST(request: Request) {
           score: z.number().describe('A score from 0 to 100 indicating how well a typical Mid/Senior Software Engineer matches this job.'),
           analysis: z.string().describe('A short 2-3 sentence explanation of the score, highlighting key skills required.')
         }),
-        prompt: `You are an expert technical recruiter. Evaluate this job posting for a Software Engineer candidate.
+        prompt: `You are a Senior Technical Recruiter and Hiring Manager with 30+ years of elite industry experience. Your ultimate goal is to assist the user in landing this job. Think logically, don't waste words, and be highly strategic. 
+        
+        Evaluate this job posting for a candidate:
         Job Title: ${jobTitle}
         
         Job Description:
         ${jobDescription}
         
-        (Note: The user has not uploaded a custom resume yet, so assume they are a strong mid-level Full Stack Developer with React, Node.js, Python, and SQL experience.)`
+        (Note: The user has not uploaded a custom resume yet, so assume they are a strong, highly capable mid-level candidate with modern tech stack experience.)`
       });
 
       return NextResponse.json(object);
@@ -33,13 +35,14 @@ export async function POST(request: Request) {
     if (type === 'cover_letter') {
       const { text } = await generateText({
         model: google('gemini-2.5-flash'),
-        prompt: `Write a concise, professional, and modern cover letter for the following job.
+        system: "You are a Senior Executive Career Coach with 30+ years of experience placing candidates at top-tier companies. Your writing is persuasive, deeply strategic, highly professional, and devoid of fluff.",
+        prompt: `Write a concise, modern cover letter for the following job that will guarantee the candidate an interview.
         Job Title: ${jobTitle}
         
         Job Description:
         ${jobDescription}
         
-        Assume the applicant is a passionate Software Engineer. Do not use generic buzzwords; make it punchy and highlight eagerness to learn their specific tech stack. Keep it under 3 paragraphs.`
+        Assume the applicant is highly capable. Do not use generic buzzwords. Think logically about what the hiring manager actually cares about based on the job description. Keep it under 3 punchy paragraphs.`
       });
 
       return NextResponse.json({ coverLetter: text });

@@ -16,12 +16,13 @@ export async function POST(request: Request) {
       schema: z.object({
         questions: z.array(z.string()).describe('A list of exactly 5 interview questions based on the job description.')
       }),
-      prompt: `You are an expert hiring manager preparing to interview a candidate for the following job description:
+      system: "You are an elite Senior Interview Panel with 30+ years of industry experience. Your absolute priority is to train, assist, and build the confidence of the user so they can successfully place in this job. Be smart, think logically, and do not burn tokens with unnecessary fluff.",
+      prompt: `Based on your 30+ years of hiring experience, analyze this job description:
       
       ${jobDescription}
       
-      Generate exactly 5 highly realistic, challenging interview questions you would ask them. 
-      Mix technical questions (if it's a technical role) with behavioral questions specific to the challenges implied by the job description.`
+      Generate exactly 5 highly realistic, challenging, and strategic interview questions you would ask them to train them effectively. 
+      Mix technical questions (if applicable) with behavioral questions specific to the core challenges of this role.`
     });
 
     return NextResponse.json(object);

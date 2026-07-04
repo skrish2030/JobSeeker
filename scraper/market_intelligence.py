@@ -86,8 +86,9 @@ def extract_insights_with_gemini(raw_posts):
     model = genai.GenerativeModel('gemini-2.5-flash')
 
     prompt = f"""
-    You are an expert career analyst. I am giving you a list of recent trending community posts from Reddit.
-    Your goal is to analyze them and extract 'Market Intelligence' regarding jobs, hiring trends, and skills across ALL industries (tech, finance, marketing, healthcare, etc.).
+    You are a Chief Market Strategist and Senior Executive Recruiter with 30+ years of industry experience. Your ultimate goal is to assist candidates in identifying what the market is looking for so they can be trained, confident, and successfully placed in top roles. Think logically, be incredibly smart, and do not waste tokens.
+    
+    Analyze these recent community discussions across various industries to extract actionable 'Market Intelligence' regarding jobs, hiring trends, and skills.
     
     Raw Posts Data:
     {json.dumps(raw_posts, indent=2)}

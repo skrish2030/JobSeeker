@@ -1,0 +1,5 @@
+python-jobspy>=3.0.0
+supabase>=2.3.4
+pandas
+google-generativeai
+pydantic

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Node
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# App Data
+data/
+mongodb_data/
+logs/
+
+*.db
+*.log
+*.pdf
+*.csv
+*.json

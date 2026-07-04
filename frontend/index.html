@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSeeker</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6c63ff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="JobSeeker">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/styles.css?v=1.1.2">
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Premium Left Navigation Sidebar -->
+        <aside class="nav-sidebar">
+            <div class="sidebar-brand">
+                <img src="/static/logo.png" alt="JobSeeker Logo">
+                <div class="brand-text">
+                    <h1>JobSeeker</h1>
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <button class="nav-item active" data-panel="panel-home">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home Feed</span>
+                </button>
+                <button class="nav-item" data-panel="panel-internship">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Internships</span>
+                </button>
+                <button class="nav-item" data-panel="panel-interested">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Interested Jobs</span>
+                </button>
+                <button class="nav-item" data-panel="panel-interview">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Interview Assistant</span>
+                </button>
+                <button class="nav-item" data-panel="panel-resume">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Resume Builder</span>
+                </button>
+                <button class="nav-item" data-panel="panel-settings">
+                    <i class="fa-solid fa-gears"></i>
+                    <span>Settings</span>
+                </button>
+                <button class="nav-item" data-panel="panel-market-analyst">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Market Analyst</span>
+                </button>
+            </nav>
+            
+            <!-- App Details and Metadata -->
+            <div class="sidebar-app-info" style="margin-top: auto; padding: 12px 8px 0 8px; border-top: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                <div style="font-weight: 600; color: var(--text-secondary);">JobSeeker Portal</div>
+                <div>Version 1.1.0</div>
+                <div>Developed by <span style="color: var(--primary); font-weight: 500;">RamSwap Group</span></div>
+            </div>
+            
+            <div class="sidebar-footer" style="margin-top: 12px !important;">
+                <div class="user-info">
+                    <i class="fa-solid fa-circle-user user-avatar"></i>
+                    <span id="sidebar-username">Guest Session</span>
+                </div>
+                <button id="btn-logout" class="btn-logout" title="End Secure Session">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- PANEL: Home Feed -->
+            <div class="tab-panel active" id="panel-home">
+                <!-- Inline Search Panel -->
+                <div class="panel-header-search-bar">
+                    <div class="search-panel-inline">
+                        <div class="search-field">
+                            <i class="fa-solid fa-magnifying-glass field-icon"></i>
+                            <input type="text" id="header-search-input" placeholder="Job title, keywords, or company">
+                        </div>
+                        <div class="search-divider"></div>
+                        <div class="search-field">
+                            <i class="fa-solid fa-location-dot field-icon"></i>
+                            <input type="text" id="header-location-input" placeholder="City, state, or 'Remote'">
+                        </div>
+                        <button id="btn-find-jobs" class="btn btn-primary btn-search">Search</button>
+                    </div>
+                    
+                    <div class="panel-header-actions">
+                        <button id="btn-toggle-analytics" class="btn btn-action" title="Toggle Pipeline Analytics Panel">
+                            <i class="fa-solid fa-chart-simple"></i> <span>Analytics</span>
+                        </button>
+                        <button id="btn-email-now" class="btn btn-action" title="Send matching digest email">
+                            <i class="fa-solid fa-paper-plane"></i> <span>Send Digest</span>
+                        </button>
+                        <div class="filters-dropdown-wrapper">
+                            <button id="btn-toggle-filters-dropdown" class="btn btn-action" title="Toggle Filters Panel">
+                                <i class="fa-solid fa-filter"></i> <span>Filters</span>
+                            </button>
+                            <div class="filters-dropdown" id="filters-dropdown-home">
+                                <div class="filter-group-box">
+                                    <h4>Pipeline Status</h4>
+                                    <div class="filter-options-stack">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="status-filter" value="identified" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Identified</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="status-filter" value="applied" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Applied</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="status-filter" value="interviewing" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Interviewing</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="status-filter" value="offer">
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Offer Received</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="status-filter" value="archived">
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Archived</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="filter-group-box">
+                                    <h4>Workplace Type</h4>
+                                    <div class="filter-options-stack">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="remote-filter" value="remote" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Remote</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="remote-filter" value="hybrid" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Hybrid</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="remote-filter" value="onsite" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Onsite</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="filter-group-box">
+                                    <h4>Visa Sponsorship</h4>
+                                    <div class="filter-options-stack">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="visa-filter" value="h1b" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">H1B Sponsorship</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="visa-filter" value="none" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">No Sponsorship</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="visa-filter" value="unknown" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Unknown</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="filter-group-box">
+                                    <h4>Employment Type</h4>
+                                    <div class="filter-options-stack">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="contract-filter" value="full-time" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Full-Time</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="contract-filter" value="contract" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Contract</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="contract-filter" value="w2" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">W2 Contract</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="contract-filter" value="c2c" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Corp-to-Corp (C2C)</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="contract-filter" value="internship" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Internship</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="filter-group-box">
+                                    <h4>Fit Score: <span id="score-val">50</span>%+</h4>
+                                    <div class="score-slider-wrapper">
+                                        <input type="range" id="score-slider" min="0" max="100" value="50" class="slider">
+                                    </div>
+                                </div>
+                                <div class="filter-actions-footer" style="margin-top: 4px; display: flex; gap: 8px;">
+                                    <button class="btn btn-primary btn-close-filters" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; justify-content: center; display: flex; align-items: center;">
+                                        Apply & Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workspace">
+
+                    <!-- Feed Column -->
+                    <main class="feed-column">
+                        <div class="feed-header-static">
+                            <i class="fa-solid fa-list-ul"></i> <span>Job Feed</span>
+                        </div>
+                        <div class="results-header-info">
+                            <span id="feed-results-count">0 jobs matching</span>
+                        </div>
+                        <div class="job-list" id="job-list-container">
+                            <!-- Cards render dynamically -->
+                        </div>
+                    </main>
+
+                    <!-- Details Column -->
+                    <section class="details-column" id="details-panel-container">
+                        <div class="no-selection">
+                            <i class="fa-regular fa-folder-open icon-empty"></i>
+                            <h3>Select a job to view details</h3>
+                            <p>Click on any job posting in the list to review deep recruiter suitability matching, red flags, cold outreach pitches, and full description text.</p>
+                        </div>
+                    </section>
+
+                    <!-- Analytics Column -->
+                    <aside class="analytics-column collapsed" id="analytics-panel-container">
+                        <!-- Dashboard content renders here -->
+                    </aside>
+                </div>
+            </div>
+            
+            <!-- PANEL: Internships -->
+            <div class="tab-panel" id="panel-internship">
+                <div class="panel-header-search-bar">
+                    <div class="search-panel-inline">
+                        <div class="search-field">
+                            <i class="fa-solid fa-graduation-cap field-icon"></i>
+                            <input type="text" id="internship-search-input" value="Internship" placeholder="Search internships, e.g. Software Engineer Intern">
+                        </div>
+                        <div class="search-divider"></div>
+                        <div class="search-field">
+                            <i class="fa-solid fa-location-dot field-icon"></i>
+                            <input type="text" id="internship-location-input" placeholder="City, state, or 'Remote'">
+                        </div>
+                        <button id="btn-internship-find-jobs" class="btn btn-primary btn-search">Search</button>
+                    </div>
+                    
+                    <div class="panel-header-actions">
+                        <div class="filters-dropdown-wrapper">
+                            <button id="btn-toggle-internship-filters-dropdown" class="btn btn-action" title="Toggle Filters Panel">
+                                <i class="fa-solid fa-filter"></i> <span>Filters</span>
+                            </button>
+                            <div class="filters-dropdown" id="filters-dropdown-internship">
+                                <div class="filter-group-box">
+                                    <h4>Workplace Type</h4>
+                                    <div class="filter-options-stack">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="intern-remote-filter" value="remote" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Remote</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="intern-remote-filter" value="hybrid" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Hybrid</span>
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" name="intern-remote-filter" value="onsite" checked>
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">Onsite</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="filter-group-box">
+                                    <h4>Fit Score: <span id="intern-score-val">50</span>%+</h4>
+                                    <div class="score-slider-wrapper">
+                                        <input type="range" id="intern-score-slider" min="0" max="100" value="50" class="slider">
+                                    </div>
+                                </div>
+                                <div class="filter-actions-footer" style="margin-top: 4px; display: flex; gap: 8px;">
+                                    <button class="btn btn-primary btn-close-filters" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 6px; justify-content: center; display: flex; align-items: center;">
+                                        Apply & Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workspace">
+
+                    <!-- Internship Feed -->
+                    <main class="feed-column">
+                        <div class="feed-header-static">
+                            <i class="fa-solid fa-graduation-cap"></i> <span>Internship Feed</span>
+                        </div>
+                        <div class="results-header-info">
+                            <span id="internship-results-count">0 internships matching</span>
+                        </div>
+                        <div class="job-list" id="internship-job-list-container">
+                            <!-- Cards render dynamically -->
+                        </div>
+                    </main>
+
+                    <!-- Internship Details -->
+                    <section class="details-column" id="internship-details-panel-container">
+                        <div class="no-selection">
+                            <i class="fa-regular fa-folder-open icon-empty"></i>
+                            <h3>Select an internship to view details</h3>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- PANEL: Interested Jobs -->
+            <div class="tab-panel" id="panel-interested">
+                <div class="workspace no-search-header">
+                    <!-- Interested Feed -->
+                    <main class="feed-column">
+                        <div class="feed-header-static">
+                            <i class="fa-solid fa-star"></i> <span>Interested Jobs</span>
+                        </div>
+                        <div class="results-header-info">
+                            <span id="interested-results-count">0 interested roles saved</span>
+                        </div>
+                        <div class="job-list" id="interested-job-list-container">
+                            <!-- Cards render dynamically -->
+                        </div>
+                    </main>
+
+                    <!-- Interested Details -->
+                    <section class="details-column" id="interested-details-panel-container">
+                        <div class="no-selection">
+                            <i class="fa-regular fa-folder-open icon-empty"></i>
+                            <h3>Select a starred job to view details</h3>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- PANEL: Interview Assistant -->
+            <div class="tab-panel" id="panel-interview">
+                <div class="ai-feature-layout">
+                    <div class="ai-feature-sidebar">
+                        <div class="sidebar-section-title">
+                            <i class="fa-solid fa-comments"></i>
+                            <span>Mock Interview Prep</span>
+                        </div>
+                        
+                        <!-- Voice Conversation Mode Toggle -->
+                        <div class="form-row" style="margin-bottom: 16px;">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="interview-voice-mode">
+                                <span class="checkmark"></span>
+                                <span class="label-text" style="font-weight: 600; color: var(--primary);">Voice Conversation Mode</span>
+                            </label>
+                            <span class="form-hint">Allows speaking responses and hearing the interviewer speak back.</span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="interview-job-select">Select Target Job Position</label>
+                            <select id="interview-job-select" class="form-select">
+                                <option value="">-- Choose a job from list or paste custom --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row" id="custom-interview-job-row">
+                            <label for="interview-custom-desc">Paste Custom Job Description</label>
+                            <textarea id="interview-custom-desc" rows="8" placeholder="Paste custom role text here if you want to practice for a specific outside job..."></textarea>
+                        </div>
+                        
+                        <button id="btn-start-interview" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                            <i class="fa-solid fa-play"></i> Start AI Interview Session
+                        </button>
+                        
+                        <!-- Performance Scorecard -->
+                        <div class="ai-stats-card" id="interview-performance-card" style="display: none; margin-top: 20px;">
+                            <div class="stats-title">Performance Evaluation</div>
+                            <div class="performance-score" id="performance-score-val">--/100</div>
+                            <p class="stats-hint">Score is calculated by Ollama AI based on your interview answers.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-chat-workspace">
+                        <div class="chat-header">
+                            <div class="chat-header-info">
+                                <i class="fa-solid fa-robot"></i>
+                                <div>
+                                    <h3>Interviewer AI</h3>
+                                    <span id="interview-ai-subtitle">Ollama AI Powered Technical Recruiter</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages-scroll" id="chat-messages-container">
+                            <div class="chat-empty-state">
+                                <i class="fa-solid fa-microphone-lines"></i>
+                                <h3>Prepare For Your Dream Job</h3>
+                                <p>Select one of your saved positions or paste a description, then initiate the interview. The AI will ask you technical and behavioral questions one by one, give you instant feedback on your answers, and provide a final scorecard with recommendations.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-bar">
+                            <button id="btn-mic-interview" class="btn btn-secondary btn-chat-mic" style="margin-right: 8px; border-radius: 50%; width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center; background: rgba(124, 77, 255, 0.1); border: 1px solid rgba(124, 77, 255, 0.2); color: var(--primary); transition: all 0.3s ease;" title="Talk (Voice Input)" disabled>
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            <input type="text" id="chat-message-input" placeholder="Type or click mic to speak your response..." disabled>
+                            <button id="btn-submit-chat-message" class="btn btn-primary btn-chat-send" disabled>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL: Resume Builder -->
+            <div class="tab-panel" id="panel-resume">
+                <div class="ai-feature-layout">
+                    <div class="ai-feature-sidebar">
+                        <div class="sidebar-section-title">
+                            <i class="fa-solid fa-file-invoice"></i>
+                            <span>ATS Resume Tailoring</span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="resume-job-select">Select Target Job Position</label>
+                            <select id="resume-job-select" class="form-select">
+                                <option value="">-- Choose a job from list or paste custom --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row" id="custom-resume-job-row">
+                            <label for="resume-custom-desc">Paste Custom Job Description</label>
+                            <textarea id="resume-custom-desc" rows="8" placeholder="Paste custom role text..."></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="resume-base-experience">Base Profile / Experience History</label>
+                            <textarea id="resume-base-experience" rows="12" placeholder="Paste your core skills, experiences, and education. We will tailor this background to match the job description."></textarea>
+                        </div>
+                        
+                        <button id="btn-build-resume" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Tailored Resume
+                        </button>
+                    </div>
+                    
+                    <div class="ai-resume-workspace">
+                        <div class="resume-header">
+                            <div class="resume-header-info">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <div>
+                                    <h3>Tailored ATS Document</h3>
+                                    <span>ATS-Optimized Professional Resume Draft</span>
+                                </div>
+                            </div>
+                            <div class="resume-actions">
+                                <button id="btn-copy-tailored-resume" class="btn btn-secondary btn-action" disabled>
+                                    <i class="fa-solid fa-copy"></i> Copy Text
+                                </button>
+                                <button id="btn-download-tailored-resume" class="btn btn-secondary btn-action" disabled>
+                                    <i class="fa-solid fa-download"></i> Download Draft
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="resume-preview-container">
+                            <div class="resume-empty-state" id="resume-empty-message">
+                                <i class="fa-solid fa-file-waveform"></i>
+                                <h3>Generate Custom Resume Drafts</h3>
+                                <p>Provide details of a job role and input your core experiences on the left, then click Tailor. JobSeeker AI will rewrite your bullets, structure sections correctly, and output an ATS-optimized draft that maximizes compatibility scores.</p>
+                            </div>
+                            <div class="resume-output-paper" id="resume-output-content" style="display: none;">
+                                <!-- Document markdown/text will populate here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL: Settings (Embedded Console) -->
+            <div class="tab-panel" id="panel-settings">
+                <div class="settings-embedded-container">
+                    <div class="settings-sidebar">
+                        <div class="sidebar-section-title">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Configurations</span>
+                        </div>
+                        <div class="settings-menu">
+                            <button class="settings-nav-btn active" data-tab="tab-search">Job Targeting</button>
+                            <button class="settings-nav-btn" data-tab="tab-companies">Target Firms</button>
+                            <button class="settings-nav-btn" data-tab="tab-resume">Profile & CV</button>
+                            <button class="settings-nav-btn" data-tab="tab-email">Email Alerts</button>
+                            <button class="settings-nav-btn" data-tab="tab-ai">AI Models & Keys</button>
+                            <button class="settings-nav-btn" data-tab="tab-status">System Logs</button>
+                        </div>
+                        <div class="settings-actions-desktop" style="margin-top: auto; padding-top: 20px;">
+                            <button class="btn btn-primary" id="settings-save" style="width: 100%;">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Configurations
+                            </button>
+                            <button class="btn btn-secondary" id="settings-cancel" style="width: 100%; margin-top: 10px;">
+                                <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+                            </button>
+                        </div>
+                        <div class="settings-app-info" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); line-height: 1.4; text-align: center;">
+                            <div style="font-weight: 600; color: var(--text-secondary);">JobSeeker Portal</div>
+                            <div>Version 1.1.0</div>
+                            <div>Developed by <span style="color: var(--primary); font-weight: 500;">RamSwap Group</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-body-panel">
+                        <!-- TAB: Search Criteria -->
+                        <div class="tab-content active" id="tab-search">
+                            <div class="form-row">
+                                <label for="form-search-terms">Job Search Designations (comma-separated)</label>
+                                <input type="text" id="form-search-terms" placeholder="Data Engineer, Software Engineer, Quant">
+                                <span class="form-hint">JobSpy will scrape boards using these keywords.</span>
+                            </div>
+                            <div class="form-row">
+                                <label for="form-locations">Target Locations (comma-separated)</label>
+                                <input type="text" id="form-locations" placeholder="Remote, New York, DE, San Francisco">
+                                <span class="form-hint">Geographies to query (e.g. Remote, DE, CA).</span>
+                            </div>
+                            <div class="form-row">
+                                <label for="form-scrape-country">Target Country (for Indeed/Glassdoor)</label>
+                                <input type="text" id="form-scrape-country" placeholder="USA">
+                                <span class="form-hint">E.g., USA, UK, Canada, Germany (Default: USA).</span>
+                            </div>
+                            <div class="form-row">
+                                <label>Target Job Boards</label>
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" name="form-boards" value="linkedin">
+                                        <span class="checkmark"></span>
+                                        <span class="label-text">LinkedIn</span>
+                                    </label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" name="form-boards" value="indeed">
+                                        <span class="checkmark"></span>
+                                        <span class="label-text">Indeed</span>
+                                    </label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" name="form-boards" value="google">
+                                        <span class="checkmark"></span>
+                                        <span class="label-text">Google Jobs</span>
+                                    </label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" name="form-boards" value="zip_recruiter">
+                                        <span class="checkmark"></span>
+                                        <span class="label-text">ZipRecruiter</span>
+                                    </label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" name="form-boards" value="glassdoor">
+                                        <span class="checkmark"></span>
+                                        <span class="label-text">Glassdoor</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- TAB: Target Companies -->
+                        <div class="tab-content" id="tab-companies">
+                            <div class="company-input-row" style="flex-direction: column; gap: 8px;">
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="company-add-input" style="flex: 1;" placeholder="Company Name (e.g. Stripe, Figma)">
+                                    <button id="btn-add-company" class="btn btn-secondary">Add Firm</button>
+                                </div>
+                                <input type="text" id="company-url-input" placeholder="Direct Career Portal URL (Greenhouse or Lever link - Optional)">
+                            </div>
+                            <span class="form-hint">Scrapes postings directly from their Greenhouse/Lever board (e.g., <code>https://boards.greenhouse.io/stripe</code> or <code>https://jobs.lever.co/figma</code>) to bypass aggregators.</span>
+                            
+                            <div class="companies-tags-list" id="companies-tags-container">
+                                <!-- Tags populate here -->
+                            </div>
+                        </div>
+                        
+                        <!-- TAB: Resume -->
+                        <div class="tab-content" id="tab-resume">
+                            <div class="form-row">
+                                <label for="form-resume-text">Your Resume (Plain Text)</label>
+                                <textarea id="form-resume-text" rows="8" placeholder="Paste your full CV text here..."></textarea>
+                                <span class="form-hint">The Recruiter AI compares this text to job descriptions to assess relevance and suggest interview talking points.</span>
+                            </div>
+                            
+                            <h3 style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); color: var(--text-primary); font-size: 14px; font-weight: 600;">Auto-Apply Profile</h3>
+                            <span class="form-hint" style="display: block; margin-bottom: 12px;">Provide details for the auto-apply agent to populate job application forms automatically.</span>
+                            
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <label for="form-candidate-first-name">First Name</label>
+                                    <input type="text" id="form-candidate-first-name" placeholder="John">
+                                </div>
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <label for="form-candidate-last-name">Last Name</label>
+                                    <input type="text" id="form-candidate-last-name" placeholder="Doe">
+                                </div>
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <label for="form-candidate-email">Application Email</label>
+                                    <input type="email" id="form-candidate-email" placeholder="john.doe@example.com">
+                                </div>
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <label for="form-candidate-phone">Phone Number</label>
+                                    <input type="text" id="form-candidate-phone" placeholder="+1 (555) 019-2834">
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <label for="form-candidate-linkedin">LinkedIn Profile URL</label>
+                                    <input type="text" id="form-candidate-linkedin" placeholder="https://linkedin.com/in/johndoe">
+                                </div>
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <label for="form-candidate-github">GitHub Profile URL</label>
+                                    <input type="text" id="form-candidate-github" placeholder="https://github.com/johndoe">
+                                </div>
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <label for="form-candidate-portfolio">Portfolio / Website URL</label>
+                                    <input type="text" id="form-candidate-portfolio" placeholder="https://johndoe.dev">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <label for="form-resume-file-path">Local Resume File Path (.pdf or .docx)</label>
+                                <input type="text" id="form-resume-file-path" placeholder="C:\Users\John\Documents\John_Doe_Resume.pdf">
+                                <span class="form-hint">Absolute local file path. The auto-apply agent will upload this file to Greenhouse/Lever forms.</span>
+                            </div>
+                        </div>
+                        
+                        <!-- TAB: Email / SMTP -->
+                        <div class="tab-content" id="tab-email">
+                            <div class="form-row">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="form-email-notifications-enabled" value="true">
+                                    <span class="checkmark"></span>
+                                    <span class="label-text" style="font-weight: 600;">Enable Email Digest Alerts</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-row">
+                                    <label for="form-email-recipient">Recipient Email Address</label>
+                                    <input type="email" id="form-email-recipient" placeholder="you@example.com">
+                                    <span class="form-hint">Address where matching job alerts will be dispatched.</span>
+                                </div>
+                                <div class="form-row">
+                                    <label for="form-min-score">Min Digest Score Threshold</label>
+                                    <input type="number" id="form-min-score" min="0" max="100" placeholder="50">
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid border-top" style="margin-top: 15px; padding-top: 15px;">
+                                <div class="form-row">
+                                    <label for="form-email-alert-job-title">Subscription Job Titles (comma-separated)</label>
+                                    <input type="text" id="form-email-alert-job-title" placeholder="e.g. Frontend Engineer, Product Manager">
+                                    <span class="form-hint">Only send emails containing these titles. Leave blank to email all matches.</span>
+                                </div>
+                                <div class="form-row">
+                                    <label for="form-email-alert-location">Subscription Locations (comma-separated)</label>
+                                    <input type="text" id="form-email-alert-location" placeholder="e.g. Remote, New York">
+                                    <span class="form-hint">Only send emails matching these locations. Leave blank for all locations.</span>
+                                </div>
+                            </div>
+
+                            <div class="form-grid border-top" style="margin-top: 15px; padding-top: 15px;">
+                                <div class="form-row">
+                                    <label for="form-scrape-interval">Scrape Schedule (Minutes)</label>
+                                    <input type="number" id="form-scrape-interval" min="2" max="1440" placeholder="20">
+                                </div>
+                                <div class="form-row">
+                                    <label for="form-email-interval">Email Digest Schedule (Hours)</label>
+                                    <input type="number" id="form-email-interval" step="0.5" min="0.5" max="720" placeholder="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: AI Models & Keys -->
+                        <div class="tab-content" id="tab-ai">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                                <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: var(--text-primary);">AI Failover / Load-Balancing Configurations</h3>
+                                <button id="btn-add-ai-config" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; height: auto;">
+                                    <i class="fa-solid fa-plus" style="margin-right: 4px;"></i> Add Config
+                                </button>
+                            </div>
+                            
+                            <div id="ai-configs-container" style="display: flex; flex-direction: column; gap: 16px;">
+                                <!-- Dynamically populated rows -->
+                            </div>
+                        </div>
+                        
+                        <!-- TAB: Status Logs -->
+                        <div class="tab-content" id="tab-status">
+                            <div class="logs-header">
+                                <h3>Scraper Status Dashboard</h3>
+                            </div>
+                            
+                            <div class="status-grid">
+                                <div class="status-card">
+                                    <span class="status-label">Scheduler Status</span>
+                                    <span class="status-value" id="status-scheduler">Checking...</span>
+                                </div>
+                                <div class="status-card">
+                                    <span class="status-label">Scraper Active Status</span>
+                                    <span class="status-value" id="status-scraper-active">Idle</span>
+                                </div>
+                                <div class="status-card">
+                                    <span class="status-label">Next Scraper Run</span>
+                                    <span class="status-value" id="status-next-scrape">-</span>
+                                </div>
+                                <div class="status-card">
+                                    <span class="status-label">Next Email Digest</span>
+                                    <span class="status-value" id="status-next-email">-</span>
+                                </div>
+                            </div>
+                            
+                            <h3 class="logs-subtitle">Execution Log History</h3>
+                            <div class="logs-container">
+                                <table class="logs-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>Status</th>
+                                            <th>Jobs Found</th>
+                                            <th>New Saved</th>
+                                            <th>Details/Errors</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="logs-table-body">
+                                        <!-- Log rows populate here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="settings-actions-mobile" style="display: none; padding-top: 16px; border-top: 1px solid var(--border-color); margin-top: 20px;">
+                            <button class="btn btn-primary" id="settings-save-mobile" style="width: 100%;">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Configurations
+                            </button>
+                            <button class="btn btn-secondary" id="settings-cancel-mobile" style="width: 100%; margin-top: 10px;">
+                                <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- PANEL: Market Analyst Insights -->
+            <div class="tab-panel" id="panel-market-analyst">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <h2 style="font-size: 24px; color: var(--text-color); margin-bottom: 4px;">Market Analyst Insights <i class="fa-solid fa-chart-line" style="color: var(--primary);"></i></h2>
+                        <p style="color: var(--text-secondary); font-size: 14px;">Real-time database trends and AI-driven career predictions.</p>
+                    </div>
+                    <button id="btn-refresh-market" class="btn btn-primary">
+                        <i class="fa-solid fa-rotate-right"></i> Refresh Data
+                    </button>
+                </div>
+                <div class="market-analyst-content" id="market-analyst-content" style="padding: 24px; display: grid; gap: 24px; max-width: 1200px; margin: 0 auto; min-height: 500px;">
+                    
+                    <div id="market-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; gap: 16px;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--primary);"></i>
+                        <h3 style="color: var(--text-color);">Our 30-Year Veteran AI is analyzing the market...</h3>
+                        <p style="color: var(--text-secondary);">Crunching local demand stats and fetching top influencer videos.</p>
+                    </div>
+
+                    <div id="market-dashboard" style="display: none; grid-template-columns: 1fr; gap: 24px;">
+                        
+                        <!-- Top Summary Banner -->
+                        <div class="glass-card" style="position: relative; background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(108,99,255,0.05)); border: 1px solid rgba(108,99,255,0.3); padding: 32px; border-radius: 16px; display: flex; gap: 20px; align-items: flex-start; box-shadow: 0 8px 32px 0 rgba(108,99,255, 0.15); backdrop-filter: blur(8px);">
+                            <div style="background: rgba(108,99,255, 0.2); border-radius: 50%; padding: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(108,99,255,0.4);">
+                                <i class="fa-solid fa-robot" style="font-size: 2.5rem; color: #b3aeff; text-shadow: 0 0 10px rgba(179, 174, 255, 0.8);"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0 0 12px 0; color: #fff; font-size: 1.5rem; letter-spacing: 0.5px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,0.2);">Analyst Verdict</h3>
+                                <p id="market-summary-text" style="color: rgba(255,255,255,0.85); line-height: 1.8; margin: 0; font-size: 1.1rem; font-weight: 300;"></p>
+                            </div>
+                        </div>
+
+                        <!-- 3 Column Data Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 10px;">
+                            
+                            <!-- Stat Card: Current Demand -->
+                            <div class="glass-card" style="padding: 24px; border-radius: 16px; background: rgba(255, 107, 107, 0.05); border: 1px solid rgba(255, 107, 107, 0.2); box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2); transition: transform 0.3s ease;">
+                                <h4 style="color: #fff; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 500;"><i class="fa-solid fa-fire" style="color: #ff6b6b; text-shadow: 0 0 10px rgba(255,107,107,0.8);"></i> Top Local Demand (Last 30 Days)</h4>
+                                <ul id="market-stats-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px;"></ul>
+                            </div>
+                            
+                            <!-- Stat Card: Booming Roles -->
+                            <div class="glass-card" style="padding: 24px; border-radius: 16px; background: rgba(51, 154, 240, 0.05); border: 1px solid rgba(51, 154, 240, 0.2); box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2); transition: transform 0.3s ease;">
+                                <h4 style="color: #fff; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 500;"><i class="fa-solid fa-rocket" style="color: #339af0; text-shadow: 0 0 10px rgba(51,154,240,0.8);"></i> 5-Year Booming Roles</h4>
+                                <div id="market-roles-list" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                            </div>
+                            
+                            <!-- Stat Card: Best Certificates -->
+                            <div class="glass-card" style="padding: 24px; border-radius: 16px; background: rgba(252, 196, 25, 0.05); border: 1px solid rgba(252, 196, 25, 0.2); box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2); transition: transform 0.3s ease;">
+                                <h4 style="color: #fff; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 500;"><i class="fa-solid fa-certificate" style="color: #fcc419; text-shadow: 0 0 10px rgba(252,196,25,0.8);"></i> High-ROI Certifications</h4>
+                                <div id="market-certs-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+                            </div>
+                            
+                        </div>
+
+                        <!-- YouTube Section -->
+                        <div style="margin-top: 12px;">
+                            <h3 style="margin: 0 0 16px 0; color: var(--text-color); display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-brands fa-youtube" style="color: #ff0000;"></i> Recommended Influencer Insights
+                            </h3>
+                            <div id="market-youtube-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                                <!-- Videos injected here -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div id="toast" class="toast-notification"></div>
+
+    <!-- Glassmorphic Authentication Overlay -->
+    <div id="auth-overlay" class="auth-overlay" style="display: flex;">
+        <div class="auth-card">
+            <div id="auth-brand-main" class="auth-brand">
+                <div class="auth-logo-circle" style="background: transparent; border: none; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin-bottom: 16px;">
+                    <img src="/static/logo.png" alt="JobSeeker Logo" style="width: 64px; height: 64px; border-radius: 14px; border: 1px solid rgba(124, 77, 255, 0.25);">
+                </div>
+                <h2>JobSeeker</h2>
+                <p>Secure Job Portal</p>
+            </div>
+            
+            <div id="auth-tabs-container" class="auth-tabs">
+                <button id="tab-login-btn" class="auth-tab-btn active">Sign In</button>
+                <button id="tab-register-btn" class="auth-tab-btn">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form-panel" class="auth-panel active">
+                <div class="form-row">
+                    <label for="auth-login-username">Username</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="auth-login-username" placeholder="Enter username">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="auth-login-password">Password</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="auth-login-password" placeholder="Enter password">
+                    </div>
+                </div>
+                
+                <!-- Captcha container -->
+                <div id="login-captcha-container" class="captcha-container" style="display: none;">
+                    <div class="captcha-track" id="login-captcha-track">
+                        <div class="captcha-handle" id="login-captcha-handle">
+                            <i class="fa-solid fa-angles-right"></i>
+                        </div>
+                        <span class="captcha-label" id="login-captcha-label">Slide to Verify</span>
+                    </div>
+                </div>
+
+                <button id="btn-login-proceed" class="btn btn-primary btn-auth">Sign In</button>
+                <button id="btn-submit-login" class="btn btn-primary btn-auth" style="display: none;" disabled>Confirm Sign In</button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form-panel" class="auth-panel">
+                <div class="form-row">
+                    <label for="auth-reg-username">Username</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="auth-reg-username" placeholder="Choose username">
+                    </div>
+                    <div id="username-suggestions" class="username-suggestions" style="display: none;"></div>
+                </div>
+                <div class="form-row">
+                    <label for="auth-reg-email">Email</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="auth-reg-email" placeholder="name@domain.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="auth-reg-password">Password</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="auth-reg-password" placeholder="Create password">
+                    </div>
+                </div>
+
+                <!-- Captcha container -->
+                <div id="register-captcha-container" class="captcha-container" style="display: none;">
+                    <div class="captcha-track" id="register-captcha-track">
+                        <div class="captcha-handle" id="register-captcha-handle">
+                            <i class="fa-solid fa-angles-right"></i>
+                        </div>
+                        <span class="captcha-label" id="register-captcha-label">Slide to Verify</span>
+                    </div>
+                </div>
+
+                <button id="btn-register-proceed" class="btn btn-primary btn-auth">Register</button>
+                <button id="btn-submit-register" class="btn btn-primary btn-auth" style="display: none;" disabled>Confirm Registration</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Dynamic API configuration (ignored if local) -->
+    <script src="/static/config.js"></script>
+
+    <!-- App JavaScript -->
+    <script src="/static/app.js?v=1.1.2"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(reg => console.log('SW registered:', reg.scope))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>

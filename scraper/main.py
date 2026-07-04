@@ -113,7 +113,8 @@ def run_scraper():
                     "max_amount": row.get("max_amount"),
                     "currency": row.get("currency"),
                     "interval": row.get("interval"),
-                    "score": score
+                    "score": score,
+                    "posted_date": str(row.get("date_posted")) if pd.notna(row.get("date_posted")) else None
                 }
                 
                 # Handle pandas NaN which JSON can't serialize

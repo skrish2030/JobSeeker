@@ -4,13 +4,14 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { login } from './actions';
+import { signup } from '../login/actions';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   
   // Captcha State
   const [verified, setVerified] = useState(false);
@@ -29,12 +30,17 @@ export default function LoginPage() {
     
     setLoading(true);
     setError('');
+    setSuccessMsg('');
 
     try {
-      const res = await login(email, password);
+      const res = await signup(email, password);
       if (res?.error) throw new Error(res.error);
-      router.push('/');
-      router.refresh();
+      if (res?.message) {
+        setSuccessMsg(res.message);
+      } else {
+        router.push('/');
+        router.refresh();
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -99,8 +105,8 @@ export default function LoginPage() {
           <div className="w-16 h-16 mb-4 rounded-2xl overflow-hidden border border-indigo-500/30 shadow-[0_0_20px_rgba(79,70,229,0.3)] bg-[#1A1625] flex items-center justify-center">
             <Image src="/logo.png" alt="JobSeeker" width={64} height={64} className="object-cover" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-100 tracking-wide">Welcome Back</h1>
-          <p className="text-gray-400 text-sm mt-1">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-gray-100 tracking-wide">Create Account</h1>
+          <p className="text-gray-400 text-sm mt-1">Join JobSeeker today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -131,8 +137,9 @@ export default function LoginPage() {
                 type="password" 
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Create a password"
                 required
+                minLength={6}
                 className="w-full pl-10 pr-4 py-3.5 bg-[#1A1625] border border-[#ffffff15] rounded-xl outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 text-gray-100 placeholder-gray-500 transition-all shadow-inner"
               />
             </div>
@@ -168,6 +175,7 @@ export default function LoginPage() {
           </div>
 
           {error && <div className="p-3 mt-1 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center font-medium">{error}</div>}
+          {successMsg && <div className="p-3 mt-1 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 text-sm text-center font-medium">{successMsg}</div>}
 
           <button
             type="submit"
@@ -179,15 +187,15 @@ export default function LoginPage() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-            ) : 'Sign In'}
+            ) : 'Create Account'}
           </button>
         </form>
         
         <div className="mt-8 text-center">
           <p className="text-gray-400 text-sm">
-            Don't have an account?{' '}
-            <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">
-              Create Account
+            Already have an account?{' '}
+            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">
+              Sign In
             </Link>
           </p>
         </div>

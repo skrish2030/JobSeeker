@@ -28,8 +28,9 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
 
   return (
     <aside className="w-64 border-r border-[#ffffff10] bg-[#120F1A] flex flex-col hidden md:flex shrink-0 h-screen sticky top-0">
-      <div className="p-6 border-b border-[#ffffff10] flex items-center justify-center">
-        <Image src="/logo.png" alt="JobSeeker Logo" width={180} height={50} className="object-contain w-auto h-8" priority />
+      <div className="p-6 border-b border-[#ffffff10] flex items-center gap-3">
+        <Image src="/logo.png" alt="JobSeeker Logo" width={40} height={40} className="object-cover w-10 h-10 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]" priority />
+        <h1 className="text-xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">JOBSEEKER</h1>
       </div>
       
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -71,6 +72,11 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
           </button>
+        </div>
+        <div className="mt-3 text-center">
+          <span className="text-[10px] text-gray-600 font-mono">
+            UI Version: {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.substring(0, 7) || 'v0.1.0'}
+          </span>
         </div>
       </div>
     </aside>

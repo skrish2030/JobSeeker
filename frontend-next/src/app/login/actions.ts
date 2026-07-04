@@ -1,41 +1,38 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
-export async function login(formData: FormData) {
+export async function login(email: string, password: string) {
   const supabase = await createClient()
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
-
-  const { error } = await supabase.auth.signInWithPassword(data)
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
 
   if (error) {
-    redirect('/login?error=Invalid email or password')
+    return { error: error.message }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
+  return { success: true }
 }
 
-export async function signup(formData: FormData) {
+export async function signup(email: string, password: string) {
   const supabase = await createClient()
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
-
-  const { error } = await supabase.auth.signUp(data)
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  })
 
   if (error) {
-    redirect('/login?error=Could not authenticate user')
+    return { error: error.message }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
+  // If Supabase has email confirmation ON, data.session will be null
+  if (data.user && !data.session) {
+    return { success: true, message: "Please check your email to confirm your account!" }
+  }
+
+  return { success: true }
 }

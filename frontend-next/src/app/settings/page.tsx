@@ -222,15 +222,19 @@ export default function SettingsPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">AI Model</label>
-                        <select 
+                        <input 
+                          type="text"
+                          list="model-options"
                           value={aiModel}
                           onChange={(e) => setAiModel(e.target.value)}
-                          className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors appearance-none"
-                        >
+                          placeholder="Type or select model (e.g. gpt-4o)"
+                          className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
+                        />
+                        <datalist id="model-options">
                           {getModelOptions().map((opt) => (
                             <option key={opt.id} value={opt.id}>{opt.name}</option>
                           ))}
-                        </select>
+                        </datalist>
                       </div>
                     </div>
                     <div>

@@ -67,7 +67,7 @@ export default function InternshipsPage() {
         <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Internships Feed</h2>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-8 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0A0710] to-[#0A0710]">
+      <div className="flex-1 overflow-y-auto p-8 bg-[#0A0710]">
         <div className="max-w-6xl mx-auto">
           {loading ? (
             <div className="flex justify-center items-center py-20">

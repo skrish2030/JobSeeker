@@ -54,10 +54,10 @@ def run_scraper():
         keywords = list(set([s["target_job_title"] for s in settings_res.data if s.get("target_job_title")]))
         locations = list(set([s["target_location"] for s in settings_res.data if s.get("target_location")]))
     else:
-        keywords = ["Software Engineer"]
+        keywords = ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Engineer", "Python Developer", "React Developer", "DevOps Engineer"]
         locations = ["Remote"]
         
-    if not keywords: keywords = ["Software Engineer"]
+    if not keywords: keywords = ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Engineer", "Python Developer", "React Developer", "DevOps Engineer"]
     if not locations: locations = ["Remote"]
     
     # Create log entry

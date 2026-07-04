@@ -8,7 +8,7 @@ export default async function AnalyticsPage() {
 
   // Fetch the latest analytics insight
   const { data: insights } = await supabase
-    .table('analytics_insights')
+    .from('analytics_insights')
     .select('*')
     .eq('is_latest', true)
     .single()

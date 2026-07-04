@@ -49,7 +49,7 @@ def run_scraper():
     supabase = get_supabase()
     
     # Target keywords and locations can be configured here or in settings.
-    keywords = ["Software Engineer", "Frontend Developer", "Backend Developer"]
+    keywords = ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Engineer", "Python Developer", "React Developer", "DevOps Engineer"]
     location = "Remote"
     
     # Create log entry
@@ -69,8 +69,8 @@ def run_scraper():
                 site_name=["indeed", "linkedin", "glassdoor"],
                 search_term=kw,
                 location=location,
-                results_wanted=30,
-                hours_old=24,
+                results_wanted=500,
+                hours_old=72,
                 country_indeed="usa"
             )
             

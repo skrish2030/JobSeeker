@@ -13,6 +13,15 @@ export default async function AnalyticsPage() {
     .eq('is_latest', true)
     .single()
 
+  // Fetch Market Intelligence Feed
+  const { data: marketFeed } = await supabase
+    .from('intelligence_feed')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  const formatNumber = (num: number) => new Intl.NumberFormat('en-US').format(num)
+
   if (!insights) {
     return (
       <div className="min-h-screen bg-[#0F0C16] flex flex-col items-center justify-center p-6">
@@ -114,6 +123,52 @@ export default async function AnalyticsPage() {
             </div>
           </div>
         </div>
+
+        {/* Market Intelligence Feed Section */}
+        {marketFeed && marketFeed.length > 0 && (
+          <div className="mt-12 bg-[#1A1625] p-8 rounded-3xl border border-[#ffffff15] shadow-lg">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <span className="text-3xl">📡</span> Community Intelligence Pulse
+            </h2>
+            <div className="grid gap-4">
+              {marketFeed.map((item: any) => (
+                <div key={item.id} className="bg-[#15121E] border border-[#ffffff10] p-6 rounded-2xl relative overflow-hidden group hover:border-indigo-500/30 transition-all">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="px-3 py-1 bg-[#ffffff0a] text-gray-300 text-xs font-bold rounded-lg uppercase tracking-wider border border-[#ffffff10]">
+                        {item.source_type}
+                      </span>
+                      <span className="text-indigo-400 font-semibold text-sm">{item.author}</span>
+                      <span className="text-gray-500 text-xs">{new Date(item.created_at).toLocaleDateString()}</span>
+                    </div>
+                    {item.sentiment === 'Positive' && <span className="text-green-400 text-lg" title="Positive Sentiment">🚀</span>}
+                    {item.sentiment === 'Negative' && <span className="text-red-400 text-lg" title="Negative Sentiment">⚠️</span>}
+                  </div>
+                  
+                  <p className="text-gray-200 text-base leading-relaxed mb-4">
+                    {item.content_summary}
+                  </p>
+                  
+                  {item.trending_skills_detected && item.trending_skills_detected.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {item.trending_skills_detected.map((skill: string, i: number) => (
+                        <span key={i} className="px-2 py-1 bg-indigo-500/10 text-indigo-300 text-xs font-bold rounded-md border border-indigo-500/20">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {item.url && (
+                    <a href={item.url} target="_blank" rel="noreferrer" className="text-sm text-indigo-500 hover:text-indigo-400 font-semibold transition-colors flex items-center gap-1">
+                      Read original post ↗
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

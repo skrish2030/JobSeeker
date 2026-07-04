@@ -4,8 +4,8 @@ import hashlib
 from datetime import datetime
 from supabase import create_client, Client
 from jobspy import scrape_jobs
-import google.generativeai as genai
 import json
+import pandas as pd
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("gh_scraper")
@@ -17,35 +17,50 @@ def get_supabase() -> Client:
         raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set")
     return create_client(url, key)
 
+def calculate_local_score(title: str, desc: str, target_keywords: list) -> int:
+    """Smart local scoring logic (0-100) based on heuristics, replacing AI."""
+    score = 50
+    title_lower = title.lower()
+    desc_lower = desc.lower()
+    
+    # Boost for exact keyword matches in title
+    for kw in target_keywords:
+        if kw.lower() in title_lower:
+            score += 25
+            break
+            
+    # Penalize for senior/lead if we assume mid-level
+    if any(x in title_lower for x in ["senior", "sr", "lead", "staff", "principal", "director"]):
+        score -= 20
+        
+    # Penalize for intern/junior if we assume mid-level
+    if any(x in title_lower for x in ["intern", "junior", "jr", "student"]):
+        score -= 20
+        
+    # Boost for common modern tech stack in desc (just basic keywords)
+    tech_stack = ["react", "node", "python", "aws", "typescript", "docker", "kubernetes", "sql", "postgres", "next.js", "tailwind"]
+    matches = sum(1 for tech in tech_stack if tech in desc_lower)
+    score += (matches * 3)
+    
+    # Cap between 0 and 100
+    return max(0, min(100, score))
+
 def run_scraper():
     supabase = get_supabase()
     
-    # 1. Fetch settings
-    settings_res = supabase.table("settings").select("*").eq("id", "global").execute()
-    settings = settings_res.data[0] if settings_res.data else {}
-    
-    ai_provider = settings.get("ai_provider", "Gemini")
-    ai_model = settings.get("ai_model", "gemini-1.5-flash")
-    ai_api_key = os.environ.get("GOOGLE_API_KEY")
-    
     # Target keywords and locations can be configured here or in settings.
-    # For a public board, we can hardcode some defaults or read from a 'keywords' table.
-    # Let's use generic defaults.
     keywords = ["Software Engineer", "Frontend Developer", "Backend Developer"]
     location = "Remote"
     
     # Create log entry
     log_res = supabase.table("scrape_log").insert({
         "run_id": os.environ.get("GITHUB_RUN_ID", "local"),
-        "notes": f"Scraping for {len(keywords)} keywords in {location}"
+        "notes": f"Scraping for {len(keywords)} keywords in {location} using Local Heuristics"
     }).execute()
     log_id = log_res.data[0]["id"]
     
     jobs_inserted = 0
     errors_count = 0
-    
-    if ai_api_key:
-        genai.configure(api_key=ai_api_key)
         
     for kw in keywords:
         logger.info(f"Scraping '{kw}' in '{location}'...")
@@ -82,21 +97,8 @@ def run_scraper():
                 
                 desc = row.get("description") or ""
                 
-                # AI Classification (Optional)
-                score = 50
-                if ai_api_key:
-                    try:
-                        model = genai.GenerativeModel(ai_model)
-                        prompt = f"Evaluate this job for a mid-level software engineer. Return ONLY JSON with a 'score' 0-100.\n\nTitle: {title}\nCompany: {company}\nDescription: {desc[:2000]}"
-                        resp = model.generate_content(prompt)
-                        # Basic JSON extraction
-                        text = resp.text.strip()
-                        if text.startswith("```json"):
-                            text = text[7:-3].strip()
-                        ai_data = json.loads(text)
-                        score = ai_data.get("score", 50)
-                    except Exception as ai_e:
-                        logger.error(f"AI classification failed for {title}: {ai_e}")
+                # Smart Local Scoring (Replaces Gemini API)
+                score = calculate_local_score(title, desc, keywords)
                 
                 # Insert job
                 job_data = {

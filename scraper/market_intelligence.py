@@ -33,11 +33,55 @@ def get_reddit_posts(subreddit):
         logger.error(f"Failed to fetch Reddit {subreddit}: {e}")
         return []
 
+def extract_insights_locally(raw_posts):
+    """Fallback heuristics to extract skills and sentiment if Gemini fails or is missing."""
+    logger.info("Using local heuristics for Market Intelligence (Gemini unavailable)...")
+    insights = []
+    
+    # Common tech skills to look for
+    tech_skills = ["python", "react", "node", "aws", "docker", "kubernetes", "sql", "postgres", "next.js", "java", "c++", "go", "rust"]
+    
+    # Basic sentiment keywords
+    positive_words = ["offer", "hired", "accept", "success", "growth", "learning", "passed"]
+    negative_words = ["layoff", "laid off", "reject", "ghosted", "tough", "bad", "rescinded", "freeze"]
+    
+    for post in raw_posts:
+        text = (post.get('title', '') + " " + post.get('text', '')).lower()
+        
+        # Detect skills
+        detected_skills = [skill for skill in tech_skills if skill in text]
+        
+        # Only include posts that actually mention tech skills or career keywords
+        if not detected_skills and not any(w in text for w in positive_words + negative_words):
+            continue
+            
+        # Determine sentiment
+        pos_count = sum(1 for w in positive_words if w in text)
+        neg_count = sum(1 for w in negative_words if w in text)
+        
+        sentiment = "Neutral"
+        if pos_count > neg_count:
+            sentiment = "Positive"
+        elif neg_count > pos_count:
+            sentiment = "Negative"
+            
+        insights.append({
+            "source_type": post['source_type'],
+            "author": post['author'],
+            "content_summary": post['title'][:150] + "...", # Just use the title as the summary
+            "trending_skills_detected": detected_skills,
+            "sentiment": sentiment,
+            "url": post['url']
+        })
+        
+    # Return top 20 to avoid spamming the DB
+    return insights[:20]
+
 def extract_insights_with_gemini(raw_posts):
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
-        logger.error("GOOGLE_API_KEY not set")
-        return []
+        logger.warning("GOOGLE_API_KEY not set, falling back to local heuristics.")
+        return extract_insights_locally(raw_posts)
 
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-2.5-flash')
@@ -76,8 +120,7 @@ def extract_insights_with_gemini(raw_posts):
         return json.loads(text)
     except Exception as e:
         logger.error(f"Gemini Analysis failed: {e}")
-        logger.error(f"Raw response: {response.text if 'response' in locals() else 'None'}")
-        return []
+        return extract_insights_locally(raw_posts)
 
 def run_intelligence():
     # 1. Gather Raw Data

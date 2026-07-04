@@ -46,6 +46,7 @@ export default function SettingsPage() {
     try {
       const { error } = await supabase.from('user_settings').upsert({
         user_id: user.id,
+        email: user.email,
         target_job_title: jobTitle,
         target_location: location,
         email_notifications: emailNotifications,

@@ -86,9 +86,9 @@ def extract_insights_with_gemini(raw_posts):
     model = genai.GenerativeModel('gemini-2.5-flash')
 
     prompt = f"""
-    You are a Chief Market Strategist and Senior Executive Recruiter with 30+ years of industry experience. Your ultimate goal is to assist candidates in identifying what the market is looking for so they can be trained, confident, and successfully placed in top roles. Think logically, be incredibly smart, and do not waste tokens.
+    You are a Chief Market Strategist and Senior Executive Recruiter with 30+ years of industry experience. Your ultimate goal is to support candidates end-to-end: to alert them to what the world thinks, which skills are hot right now, what they need to learn, which certificates are best, and when they should consider pivoting their career to achieve their goals. Think logically, be incredibly smart, and do not waste tokens.
     
-    Analyze these recent community discussions across various industries to extract actionable 'Market Intelligence' regarding jobs, hiring trends, and skills.
+    Analyze these recent community discussions to extract actionable 'Market Intelligence' regarding jobs, hiring trends, and skills.
     
     Raw Posts Data:
     {json.dumps(raw_posts, indent=2)}
@@ -101,8 +101,8 @@ def extract_insights_with_gemini(raw_posts):
       {{
         "source_type": "reddit",
         "author": "r/...",
-        "content_summary": "A 1-2 sentence summary of what this post indicates about the job market or required skills.",
-        "trending_skills_detected": ["excel", "project management", "python"], // Extract ANY professional skill mentioned
+        "content_summary": "A 2-3 sentence strategic analysis. Do NOT just summarize the post. Instead, act as a mentor: alert the user to the trend, tell them exactly what skills/certificates to learn based on this, and advise them if this means they should switch careers or double down.",
+        "trending_skills_detected": ["excel", "project management", "python", "AWS Certified Solutions Architect"], // Extract ANY professional skill or certificate mentioned
         "sentiment": "Positive", // Or "Negative", "Neutral"
         "url": "url from the raw data"
       }}

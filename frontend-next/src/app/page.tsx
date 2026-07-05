@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { toggleSavedJob } from './actions';
-import JobCard from '@/components/JobCard';
+import JobRow from '@/components/JobRow';
+import JobDetail from '@/components/JobDetail';
 
 export default function Home() {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -92,8 +93,21 @@ export default function Home() {
     }
   }
 
+  const [selectedJob, setSelectedJob] = useState<any | null>(null);
+
+  if (selectedJob) {
+    return (
+      <JobDetail 
+        job={selectedJob} 
+        isSaved={savedJobIds.has(selectedJob.id)} 
+        onToggleSave={handleToggleSave} 
+        onBack={() => setSelectedJob(null)} 
+      />
+    );
+  }
+
   return (
-    <>
+    <div className="flex flex-col h-full bg-[#0A0710]">
       <header className="h-20 border-b border-[#ffffff10] bg-[#120F1A]/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-10 shrink-0">
         <form onSubmit={handleSearch} className="flex flex-1 max-w-3xl items-center gap-4 bg-[#1A1625] border border-[#ffffff15] p-2 rounded-2xl shadow-inner">
           <div className="flex-1 flex items-center px-4 gap-2 border-r border-[#ffffff15]">
@@ -122,30 +136,36 @@ export default function Home() {
         </form>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-8 bg-[#0A0710]">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6 text-indigo-400">
-            Showing {jobs.length} {searchTerm || locationTerm ? 'matching jobs' : 'recent jobs'}
-          </h2>
+      <div className="flex-1 overflow-y-auto p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex justify-between items-end mb-6 border-b border-[#ffffff10] pb-4">
+            <h2 className="text-2xl font-bold text-indigo-400">
+              {searchTerm || locationTerm ? 'Matching Jobs' : 'Recent Jobs'}
+            </h2>
+            <span className="text-sm font-medium text-gray-500 bg-[#ffffff05] px-3 py-1 rounded-lg border border-[#ffffff10]">
+              Showing {jobs.length} results
+            </span>
+          </div>
           
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-3">
               {jobs.map((job) => (
-                <JobCard 
+                <JobRow 
                   key={job.id} 
                   job={job} 
                   isSaved={savedJobIds.has(job.id)} 
                   onToggleSave={handleToggleSave} 
+                  onClick={() => setSelectedJob(job)}
                 />
               ))}
             </div>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

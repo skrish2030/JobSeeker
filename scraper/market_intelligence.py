@@ -134,9 +134,9 @@ def run_intelligence():
         logger.warning("No raw data gathered.")
         return
 
-    # 2. Analyze with AI
-    logger.info("Analyzing trends with Gemini...")
-    insights = extract_insights_with_gemini(raw_posts)
+    # 2. Analyze locally (AI disabled per user request)
+    logger.info("Analyzing trends locally (AI disabled)...")
+    insights = extract_insights_locally(raw_posts)
 
     if not insights:
         logger.warning("No insights extracted.")

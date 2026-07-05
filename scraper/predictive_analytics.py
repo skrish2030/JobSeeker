@@ -60,12 +60,24 @@ def run_predictive_engine():
             if skill in text:
                 social_skill_counts[skill] += 1
                 
-    # Normalize Heat Scores for Topics (1-100)
+    # Normalizing heat scores for topics
     max_topic_val = max(topic_counts.values()) if topic_counts else 1
     trending_topics = []
     for topic, count in topic_counts.most_common(5):
         heat_score = int((count / max_topic_val) * 100)
         trending_topics.append({"topic": topic, "heat_score": heat_score})
+
+    # Fetch Top Companies from the Jobs table directly!
+    logger.info(f"Fetching job data created after {yesterday} for top companies...")
+    jobs_res = supabase.table("jobs").select("company").gte("scraped_at", yesterday).execute()
+    company_counts = Counter()
+    if jobs_res.data:
+        for j in jobs_res.data:
+            company = j.get("company", "").strip()
+            if company:
+                company_counts[company] += 1
+                
+    top_companies = [{"company": k, "count": v} for k, v in company_counts.most_common(5)]
 
     # Algorithmic Market Mood
     mood = "The tech market is experiencing a standard calibration cycle with balanced discussions across topics."
@@ -84,6 +96,7 @@ def run_predictive_engine():
     predictive_json = {
         "market_mood": mood,
         "trending_topics": trending_topics,
+        "top_companies": top_companies,
         "source_metrics": {
             "youtube": youtube_count,
             "reddit": reddit_count,

@@ -114,11 +114,11 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
               <Building className="w-6 h-6 text-blue-500" /> Top Companies Hiring
             </h2>
             <div className="flex-1 w-full min-h-[300px]">
-              {(!top_companies || top_companies.length === 0) ? (
+              {(!algoData.top_companies || algoData.top_companies.length === 0) ? (
                  <div className="h-full flex items-center justify-center text-gray-500">No company data available yet.</div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={top_companies} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+                  <BarChart data={algoData.top_companies} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
                     <XAxis type="number" stroke="#6b7280" />
                     <YAxis dataKey="company" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />

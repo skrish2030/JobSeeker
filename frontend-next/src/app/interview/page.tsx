@@ -128,9 +128,9 @@ export default function InterviewPage() {
       
       // AI speaks the first question
       speakText("Let's begin. " + data.questions[0]);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Failed to generate questions.');
+      alert(`Failed to generate questions: ${e.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -171,9 +171,9 @@ export default function InterviewPage() {
       // AI speaks the feedback
       speakText(`You scored ${data.score} out of 10. ${data.feedback}`);
       
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Failed to get feedback.');
+      alert(`Failed to get feedback: ${e.message}`);
     } finally {
       setIsEvaluating(false);
     }

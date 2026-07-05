@@ -58,9 +58,9 @@ export default function JobCard({ job, isSaved, onToggleSave }: JobCardProps) {
       } else {
         setCoverLetter(data.coverLetter);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('AI Generation failed. Check API keys.');
+      alert(`AI Generation failed: ${e.message}`);
     } finally {
       setIsAiLoading(false);
     }

@@ -40,8 +40,10 @@ def run_predictive_engine():
     youtube_count = 0
     topic_counts = Counter()
     social_skill_counts = Counter()
+    future_counts = Counter()
     
     broad_skills = ["python", "javascript", "react", "aws", "docker", "kubernetes", "typescript", "node", "sql", "ai", "machine learning"]
+    future_keywords = ["webassembly", "rust", "zig", "agentic", "spatial computing", "quantum", "llm", "solidity", "mojo"]
 
     for item in intel_data:
         source = item.get("source_type", "").lower()
@@ -58,7 +60,32 @@ def run_predictive_engine():
             
         for skill in broad_skills:
             if skill in text:
-                social_skill_counts[skill] += 1
+                social_skill_counts[skill.title()] += 1
+                
+        for fw in future_keywords:
+            if fw in text:
+                future_counts[fw.title()] += 1
+                
+    top_learning_skills = [{"skill": k, "count": v} for k, v in social_skill_counts.most_common(5)]
+    
+    # 10-Year Exponential Growth Modeling for Bleeding Edge Tech
+    future_trends_data = []
+    milestones = [("Current", 0), ("Year 3", 3), ("Year 5", 5), ("Year 10", 10)]
+    
+    # Get top 4 future keywords to plot
+    top_future = future_counts.most_common(4)
+    if top_future:
+        for label, years in milestones:
+            data_point = {"year": label}
+            for k, baseline_count in top_future:
+                # Math: baseline * (1 + growth_rate)^years
+                # Higher baseline momentum = faster exponential adoption curve
+                growth_rate = 0.25 + (baseline_count * 0.08) 
+                projected_value = int((baseline_count * 5) * ((1 + growth_rate) ** years))
+                data_point[k] = projected_value if projected_value > 0 else 1
+            future_trends_data.append(data_point)
+            
+    future_trends = future_trends_data
                 
     # Normalizing heat scores for topics
     max_topic_val = max(topic_counts.values()) if topic_counts else 1
@@ -67,17 +94,27 @@ def run_predictive_engine():
         heat_score = int((count / max_topic_val) * 100)
         trending_topics.append({"topic": topic, "heat_score": heat_score})
 
-    # Fetch Top Companies from the Jobs table directly!
-    logger.info(f"Fetching job data created after {yesterday} for top companies...")
-    jobs_res = supabase.table("jobs").select("company").gte("scraped_at", yesterday).execute()
+    # Fetch Top Companies and Certificates from the Jobs table directly!
+    logger.info(f"Fetching job data created after {yesterday} for top companies and certificates...")
+    jobs_res = supabase.table("jobs").select("company, description").gte("scraped_at", yesterday).execute()
     company_counts = Counter()
+    cert_counts = Counter()
+    
+    cert_keywords = ["AWS Certified", "CISSP", "PMP", "CKA", "CISM", "CompTIA", "Azure Solutions Architect", "Google Cloud Professional", "CCNA", "CEH"]
+    
     if jobs_res.data:
         for j in jobs_res.data:
             company = j.get("company", "").strip()
             if company:
                 company_counts[company] += 1
                 
+            desc = str(j.get("description", "")).lower()
+            for cert in cert_keywords:
+                if cert.lower() in desc:
+                    cert_counts[cert] += 1
+                
     top_companies = [{"company": k, "count": v} for k, v in company_counts.most_common(5)]
+    top_certificates = [{"certificate": k, "count": v} for k, v in cert_counts.most_common(5)]
 
     # Algorithmic Market Mood
     mood = "The tech market is experiencing a standard calibration cycle with balanced discussions across topics."
@@ -97,6 +134,9 @@ def run_predictive_engine():
         "market_mood": mood,
         "trending_topics": trending_topics,
         "top_companies": top_companies,
+        "top_certificates": top_certificates,
+        "top_learning_skills": top_learning_skills,
+        "future_trends": future_trends,
         "source_metrics": {
             "youtube": youtube_count,
             "reddit": reddit_count,

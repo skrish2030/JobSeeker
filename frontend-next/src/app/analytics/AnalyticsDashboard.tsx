@@ -1,13 +1,24 @@
 "use client"
 
 import React, { useMemo } from 'react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts'
+import { BarChart, Bar, LineChart, Line, Legend, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts'
 import { TrendingUp, Briefcase, Code, Building, MessageSquare, AlertCircle } from 'lucide-react'
 
 const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#f59e0b']
 
 export default function AnalyticsDashboard({ insights, marketFeed }: { insights: any, marketFeed: any[] }) {
   const { total_jobs_analyzed, ai_market_summary, trending_skills, trending_titles, top_companies, generated_at } = insights
+
+  const futureKeys = useMemo(() => {
+    let aiData: any = {}
+    try {
+      if (ai_market_summary && ai_market_summary.includes('{')) {
+        aiData = JSON.parse(ai_market_summary)
+      }
+    } catch(e) {}
+    if (!aiData.future_trends || aiData.future_trends.length === 0) return []
+    return Object.keys(aiData.future_trends[0]).filter(k => k !== 'year')
+  }, [ai_market_summary])
 
   // Parse Algorithmic JSON
   let algoData: any = { market_mood: "Analyzing market mood...", trending_topics: [], source_metrics: null }
@@ -184,13 +195,24 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                  <div className="h-full flex items-center justify-center text-gray-500">No future trend data available yet.</div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={algoData.future_trends} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
-                    <XAxis type="number" stroke="#6b7280" />
-                    <YAxis dataKey="trend" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
-                    <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
-                    <Bar dataKey="momentum" name="Prediction Score" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={24} />
-                  </BarChart>
+                  <LineChart data={algoData.future_trends} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                    <XAxis dataKey="year" stroke="#6b7280" tick={{fill: '#9ca3af', fontSize: 12}} />
+                    <YAxis stroke="#6b7280" tick={{fill: '#9ca3af', fontSize: 12}} />
+                    <Tooltip contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} itemStyle={{color: '#fff'}} />
+                    <Legend wrapperStyle={{paddingTop: '20px'}} />
+                    {futureKeys.map((key, index) => (
+                      <Line 
+                        key={key}
+                        type="monotone" 
+                        dataKey={key} 
+                        stroke={COLORS[index % COLORS.length]} 
+                        strokeWidth={3}
+                        dot={{ fill: COLORS[index % COLORS.length], r: 4, strokeWidth: 0 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    ))}
+                  </LineChart>
                 </ResponsiveContainer>
               )}
             </div>

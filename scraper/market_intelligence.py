@@ -10,7 +10,8 @@ logger = logging.getLogger("market_intelligence")
 def get_reddit_posts(subreddit):
     headers = {'User-agent': 'JobSeeker Market Intelligence Bot 1.0'}
     try:
-        url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit=5"
+        import time
+        url = f"https://www.reddit.com/r/{subreddit}/new.json?limit=15"
         res = requests.get(url, headers=headers)
         res.raise_for_status()
         data = res.json()
@@ -20,6 +21,11 @@ def get_reddit_posts(subreddit):
             # Skip pinned/stickied posts
             if post.get('stickied'):
                 continue
+            
+            # Skip posts older than 24 hours
+            if time.time() - post.get('created_utc', 0) > 86400:
+                continue
+                
             title_val = post.get('title') or ''
             text_val = post.get('selftext') or ''
             posts.append({

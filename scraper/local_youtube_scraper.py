@@ -17,14 +17,24 @@ def get_supabase() -> Client:
     return create_client(url, key)
 
 def fetch_youtube_intelligence():
-    queries = [
-        "latest tech jobs 2026", 
-        "NetworkChuck tech job market", 
-        "Programming with Mosh software engineering 2026", 
-        "freeCodeCamp tech jobs", 
-        "tech layoffs 2026 MKBHD",
-        "Dave2D tech industry 2026"
+    # Massive list of specific influencers, CEOs, and thinkers
+    all_queries = [
+        "Ali Abdaal productivity career", "TechLead software jobs", "Fireship tech trends",
+        "MKBHD tech ecosystem", "Joma Tech data software", "HustleGPT AI automation",
+        "Kevin Powell web dev skills", "Kalle Hallden automation coding",
+        "Naval Ravikant success skills", "Sahil Bloom career growth", 
+        "Lex Fridman AI future skills", "Sam Altman AI future", "Andrew Ng AI learning",
+        "Kelsey Hightower cloud devops", "Simon Sinek leadership skills", 
+        "Adam Grant workplace", "Gary Vaynerchuk business", "Dan Price workplace trends",
+        "Elon Musk future tech", "Jeff Bezos innovation", "Satya Nadella leadership",
+        "Reid Hoffman entrepreneurship", "Chamath Palihapitiya markets tech", 
+        "Sundar Pichai future", "Mark Zuckerberg AI", "Jensen Huang GPUs AI"
     ]
+    import random
+    random.shuffle(all_queries)
+    # Pick 4 random influencers per run to remain stealthy
+    queries = all_queries[:4]
+    
     raw_posts = []
 
     for query in queries:
@@ -34,7 +44,8 @@ def fetch_youtube_intelligence():
             import urllib.parse
             import re
             
-            search_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
+            # Add &sp=CAI%253D to sort by Upload Date (Newest first) so we don't grab old videos
+            search_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}&sp=CAI%253D"
             req = urllib.request.Request(search_url, headers={'User-Agent': 'Mozilla/5.0'})
             html = urllib.request.urlopen(req).read().decode()
             

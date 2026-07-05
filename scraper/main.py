@@ -39,18 +39,30 @@ def calculate_local_score(title: str, desc: str, target_keywords: list) -> int:
 def run_scraper():
     supabase = get_supabase()
     
-    # We want a massive generalized pool, so we start with a huge baseline
+    # Massive generalized pool explicitly defined by the user
     broad_keywords = [
-        "Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack", 
-        "Data Scientist", "Data Engineer", "Machine Learning", "DevOps", 
-        "Product Manager", "Project Manager", "UX Designer", "UI Designer",
-        "Marketing Manager", "Sales Manager", "Account Executive", "Business Analyst",
-        "Registered Nurse", "Healthcare Administration", "Financial Analyst", "Accountant",
-        "Operations Manager", "Customer Success", "SAS Statistical Programmer"
+        "Software Engineer", "Full-Stack Developer", "Backend Developer", "Frontend Developer", 
+        "DevOps Engineer", "Cloud Engineer", "Data Engineer", "Data Scientist", 
+        "Machine Learning Engineer", "AI Engineer", "Cybersecurity Analyst", "Network Engineer", 
+        "Database Administrator", "Systems Administrator", "IT Support Specialist", 
+        "QA Automation Engineer", "Site Reliability Engineer", "Solutions Architect", 
+        "Product Manager", "Business Analyst", "Clinical SAS Programmer", "Biostatistician", 
+        "Clinical Data Manager", "Clinical Data Analyst", "Pharma Data Engineer", 
+        "Healthcare Data Scientist", "Medical Informatics Specialist", "Health IT Analyst", 
+        "EHR/EMR Systems Analyst", "Clinical Systems Engineer", "Regulatory Technology Specialist", 
+        "Pharmacovigilance IT Analyst", "Medical Device Software Engineer", "Bioinformatics Engineer", 
+        "LIMS Administrator", "Clinical Trial Programmer", "SAS Data Analyst", 
+        "Healthcare Cybersecurity Specialist", "Medical AI Engineer", "Healthcare Cloud Engineer", 
+        "Software Developer", "Computer Systems Analyst", "Programmer Analyst", "Data Analyst", 
+        "Network & Computer Systems Administrator", "Information Security Analyst", 
+        "Computer Programmer", "QA Analyst", "Business Systems Analyst", "IT Project Manager", 
+        "Web Developer", "Systems Engineer", "Technical Consultant"
     ]
     broad_locations = [
-        "Remote", "New York, NY", "San Francisco, CA", "Austin, TX", "Seattle, WA", 
-        "Chicago, IL", "Boston, MA", "Los Angeles, CA", "Denver, CO", "Atlanta, GA", "Remote USA"
+        "United States", "Remote", "Remote USA", "New York, NY", "San Francisco, CA", "Austin, TX", 
+        "Seattle, WA", "Chicago, IL", "Boston, MA", "Los Angeles, CA", "Denver, CO", "Atlanta, GA", 
+        "Dallas, TX", "Houston, TX", "Miami, FL", "Washington, DC", "Philadelphia, PA", "San Diego, CA",
+        "Raleigh, NC", "Charlotte, NC", "Salt Lake City, UT", "Phoenix, AZ"
     ]
     
     keywords = list(broad_keywords)

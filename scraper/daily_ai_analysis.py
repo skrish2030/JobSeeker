@@ -53,7 +53,11 @@ def run_daily_ai_analysis():
         "getting hired / offers": 0,
         "AI taking jobs": 0,
         "remote work": 0,
-        "interview process": 0
+        "interview process": 0,
+        "udemy mentions": 0,
+        "coursera mentions": 0,
+        "github / open source": 0,
+        "stackoverflow": 0
     }
     
     skill_counts = {}
@@ -66,12 +70,16 @@ def run_daily_ai_analysis():
         
         text = str(item.get("content_summary", "")).lower()
         
-        # Categorize topics
+        # Categorize topics and platforms
         if "layoff" in text or "freeze" in text or "fired" in text: topic_counts["layoffs / hiring freezes"] += 1
         if "offer" in text or "hired" in text or "passed" in text: topic_counts["getting hired / offers"] += 1
         if "ai" in text or "chatgpt" in text or "replace" in text: topic_counts["AI taking jobs"] += 1
         if "remote" in text or "wfh" in text or "return to office" in text: topic_counts["remote work"] += 1
         if "interview" in text or "leetcode" in text: topic_counts["interview process"] += 1
+        if "udemy" in text: topic_counts["udemy mentions"] += 1
+        if "coursera" in text or "edx" in text: topic_counts["coursera mentions"] += 1
+        if "github" in text: topic_counts["github / open source"] += 1
+        if "stackoverflow" in text or "stack overflow" in text: topic_counts["stackoverflow"] += 1
             
         # Count skills
         for skill in broad_skills:

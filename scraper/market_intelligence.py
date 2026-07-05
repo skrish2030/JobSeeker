@@ -83,8 +83,15 @@ def run_intelligence():
     # 1. Gather Raw Data across broad career subreddits
     logger.info("Gathering raw data from communities...")
     raw_posts = []
-    # Broadened subreddits to capture all roles, not just software
-    for sub in ["jobs", "careerguidance", "recruitinghell", "cscareerquestions", "marketing", "FinancialCareers"]:
+    subreddits = [
+        "cscareerquestions", "technology", "artificial", "dataengineering", 
+        "devops", "jobs", "recruitinghell", "resumes", "FinancialCareers", "marketing"
+    ]
+    import random
+    random.shuffle(subreddits)
+    target_subreddits = subreddits[:3] # Pick 3 random subreddits per run
+    
+    for sub in target_subreddits:
         raw_posts.extend(get_reddit_posts(sub))
     
     if not raw_posts:

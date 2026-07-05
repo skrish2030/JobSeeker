@@ -9,9 +9,11 @@ import pytz
 UTC = getattr(datetime, "UTC", pytz.UTC)
 
 from supabase import create_client, Client
-from dotenv import load_dotenv
-
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("predictive_analytics")
 

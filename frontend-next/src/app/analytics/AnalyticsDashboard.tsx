@@ -67,7 +67,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                     <XAxis type="number" stroke="#6b7280" />
                     <YAxis dataKey="skill" type="category" stroke="#e5e7eb" width={80} tick={{fill: '#e5e7eb'}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
-                    <Bar dataKey="count" fill="#ec4899" radius={[0, 4, 4, 0]} barSize={24} />
+                    <Bar dataKey="count" name="Mentions in Jobs" fill="#ec4899" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -89,7 +89,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                     <XAxis type="number" stroke="#6b7280" />
                     <YAxis dataKey="title" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
-                    <Bar dataKey="count" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={24} />
+                    <Bar dataKey="count" name="Active Job Postings" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -111,7 +111,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                     <XAxis type="number" stroke="#6b7280" />
                     <YAxis dataKey="company" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
-                    <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={24} />
+                    <Bar dataKey="count" name="Open Roles" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>
                 </ResponsiveContainer>
               )}

@@ -42,15 +42,31 @@ def run_scraper():
     # Target keywords and locations from user settings
     settings_res = supabase.table("user_settings").select("target_job_title, target_location").execute()
     
+    # We want a massive generalized pool, so we start with a huge baseline
+    broad_keywords = [
+        "Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack", 
+        "Data Scientist", "Data Engineer", "Machine Learning", "DevOps", 
+        "Product Manager", "Project Manager", "UX Designer", "UI Designer",
+        "Marketing Manager", "Sales Manager", "Account Executive", "Business Analyst",
+        "Registered Nurse", "Healthcare Administration", "Financial Analyst", "Accountant",
+        "Operations Manager", "Customer Success"
+    ]
+    broad_locations = [
+        "Remote", "New York, NY", "San Francisco, CA", "Austin, TX", "Seattle, WA", 
+        "Chicago, IL", "Boston, MA", "Los Angeles, CA", "Denver, CO", "Atlanta, GA", "Remote USA"
+    ]
+    
+    keywords = list(broad_keywords)
+    locations = list(broad_locations)
+    
     if settings_res.data:
-        keywords = list(set([s["target_job_title"] for s in settings_res.data if s.get("target_job_title")]))
-        locations = list(set([s["target_location"] for s in settings_res.data if s.get("target_location")]))
-    else:
-        keywords = ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Engineer", "Python Developer", "React Developer", "DevOps Engineer"]
-        locations = ["Remote"]
+        user_kws = [s["target_job_title"] for s in settings_res.data if s.get("target_job_title")]
+        user_locs = [s["target_location"] for s in settings_res.data if s.get("target_location")]
+        keywords.extend(user_kws)
+        locations.extend(user_locs)
         
-    if not keywords: keywords = ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Engineer", "Python Developer", "React Developer", "DevOps Engineer"]
-    if not locations: locations = ["Remote"]
+    keywords = list(set(keywords))
+    locations = list(set(locations))
     
     # Automatically append "Intern" to the keywords so the Internships tab gets populated
     intern_keywords = [f"{kw} Intern" for kw in keywords]
@@ -72,7 +88,7 @@ def run_scraper():
             logger.info(f"Scraping '{kw}' in '{location}'...")
             try:
                 df = scrape_jobs(
-                    site_name=["indeed", "linkedin", "glassdoor"],
+                    site_name=["indeed", "linkedin", "glassdoor", "ziprecruiter", "google"],
                     search_term=kw,
                     location=location,
                     results_wanted=500,

@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { toggleSavedJob } from '../actions';
-import JobCard from '@/components/JobCard';
+import JobRow from '@/components/JobRow';
+import JobDetail from '@/components/JobDetail';
 
 export default function InternshipsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState<any | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -62,14 +64,25 @@ export default function InternshipsPage() {
     }
   }
 
+  if (selectedJob) {
+    return (
+      <JobDetail 
+        job={selectedJob} 
+        isSaved={savedJobIds.has(selectedJob.id)} 
+        onToggleSave={handleToggleSave} 
+        onBack={() => setSelectedJob(null)} 
+      />
+    );
+  }
+
   return (
-    <>
+    <div className="flex flex-col h-full bg-[#0A0710]">
       <header className="h-20 border-b border-[#ffffff10] bg-[#120F1A]/80 backdrop-blur-md px-8 flex items-center sticky top-0 z-10 shrink-0">
         <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Internships Feed</h2>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-8 bg-[#0A0710]">
-        <div className="max-w-6xl mx-auto">
+      <div className="flex-1 overflow-y-auto p-8">
+        <div className="max-w-5xl mx-auto">
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
@@ -81,19 +94,20 @@ export default function InternshipsPage() {
               <p className="text-gray-500">Check back later for new junior roles.</p>
             </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="flex flex-col gap-3">
               {jobs.map((job) => (
-                <JobCard 
+                <JobRow 
                   key={job.id} 
                   job={job} 
                   isSaved={savedJobIds.has(job.id)} 
                   onToggleSave={handleToggleSave} 
+                  onClick={() => setSelectedJob(job)}
                 />
               ))}
             </div>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

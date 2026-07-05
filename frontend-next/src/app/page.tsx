@@ -52,7 +52,7 @@ export default function Home() {
       }
     }
 
-    let query = supabase.from('jobs').select('*').order('posted_date', { ascending: false }).limit(50);
+    let query = supabase.from('jobs').select('*').not('title', 'ilike', '%intern%').order('posted_date', { ascending: false }).limit(50);
     
     if (activeSearch) {
       query = query.ilike('title', `%${activeSearch}%`);

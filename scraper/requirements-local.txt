@@ -1,0 +1,4 @@
+youtube-search-python
+youtube-transcript-api
+supabase>=2.3.4
+python-dotenv

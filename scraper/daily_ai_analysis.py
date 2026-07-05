@@ -43,19 +43,62 @@ def run_daily_ai_analysis():
     analytics_res = supabase.table("analytics_insights").select("id, trending_skills, trending_titles").order("created_at", desc=True).limit(1).execute()
     jobs_data = analytics_res.data[0] if analytics_res.data else {"trending_skills": [], "trending_titles": []}
     
-    # 3. Construct massive context for Gemini
+    # 2b. Aggregate and categorize community pulse to save AI tokens
+    reddit_count = 0
+    youtube_count = 0
+    
+    # Categorization buckets
+    topic_counts = {
+        "layoffs / hiring freezes": 0,
+        "getting hired / offers": 0,
+        "AI taking jobs": 0,
+        "remote work": 0,
+        "interview process": 0
+    }
+    
+    skill_counts = {}
+    broad_skills = ["python", "react", "javascript", "java", "c++", "aws", "docker", "sql", "sas", "node", "typescript"]
+    
+    for item in feed_data:
+        source = item.get("source_type", "unknown")
+        if source == "reddit": reddit_count += 1
+        elif source == "youtube": youtube_count += 1
+        
+        text = str(item.get("content_summary", "")).lower()
+        
+        # Categorize topics
+        if "layoff" in text or "freeze" in text or "fired" in text: topic_counts["layoffs / hiring freezes"] += 1
+        if "offer" in text or "hired" in text or "passed" in text: topic_counts["getting hired / offers"] += 1
+        if "ai" in text or "chatgpt" in text or "replace" in text: topic_counts["AI taking jobs"] += 1
+        if "remote" in text or "wfh" in text or "return to office" in text: topic_counts["remote work"] += 1
+        if "interview" in text or "leetcode" in text: topic_counts["interview process"] += 1
+            
+        # Count skills
+        for skill in broad_skills:
+            if skill in text:
+                skill_counts[skill] = skill_counts.get(skill, 0) + 1
+                
+    community_summary = {
+        "total_discussions_analyzed": reddit_count + youtube_count,
+        "reddit_posts": reddit_count,
+        "youtube_videos": youtube_count,
+        "trending_discussion_topics": topic_counts,
+        "most_discussed_skills": skill_counts
+    }
+    
+    # 3. Construct context for Gemini
     prompt = f"""
     You are an elite Silicon Valley Tech Recruiter and Job Market Analyst.
     Your task is to provide the ultimate DAILY MARKET REPORT.
     
-    Below is the raw data collected from scraping the web over the last 24 hours.
+    Below is the categorized, statistical data collected from scraping the web over the last 24 hours.
     
     --- 1. JOB BOARD TRENDS (from Indeed, LinkedIn, etc.) ---
     Top Titles Hiring Now: {json.dumps(jobs_data.get("trending_titles", []))}
     Most Requested Skills: {json.dumps(jobs_data.get("trending_skills", []))}
     
-    --- 2. COMMUNITY PULSE (from Reddit & YouTube transcripts) ---
-    {json.dumps(feed_data, indent=2)}
+    --- 2. COMMUNITY PULSE (Aggregated from Reddit & YouTube) ---
+    {json.dumps(community_summary, indent=2)}
     
     Based on this combined dataset, write a highly engaging, professional 3-paragraph "Daily AI Market Analysis".
     - Paragraph 1: What is the overall mood right now (layoffs, hiring boom, AI anxiety)?

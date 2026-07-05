@@ -34,7 +34,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex bg-[#0A0710] text-gray-100 font-sans">
         {user && <Sidebar userEmail={user.email || 'User'} />}
-        <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <div className="flex-1 flex flex-col h-screen overflow-y-auto overflow-x-hidden">
           {children}
         </div>
       </body>

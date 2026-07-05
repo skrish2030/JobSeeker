@@ -32,6 +32,14 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
     console.error("Failed to parse Algorithmic JSON", e)
   }
 
+  // Smart dynamic YAxis width calculator based on the longest string in the data
+  const getDynamicWidth = (data: any[], key: string) => {
+    if (!data || data.length === 0) return 100;
+    const maxLen = Math.max(...data.map(d => String(d[key]).length));
+    // Roughly 7.5px per character, bounded between 80px and 220px
+    return Math.min(Math.max(maxLen * 7.5, 80), 220);
+  }
+
   return (
     <div className="min-h-screen bg-[#0F0C16] p-6 lg:p-12 font-sans text-gray-200">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -88,7 +96,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                   <BarChart data={trending_skills} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
                     <XAxis type="number" stroke="#6b7280" />
-                    <YAxis dataKey="skill" type="category" stroke="#e5e7eb" width={80} tick={{fill: '#e5e7eb'}} />
+                    <YAxis dataKey="skill" type="category" stroke="#e5e7eb" width={getDynamicWidth(trending_skills, 'skill')} tick={{fill: '#e5e7eb', fontSize: 12}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
                     <Bar dataKey="count" name="Mentions in Jobs" fill="#ec4899" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>
@@ -110,7 +118,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                   <BarChart data={trending_titles} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
                     <XAxis type="number" stroke="#6b7280" />
-                    <YAxis dataKey="title" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
+                    <YAxis dataKey="title" type="category" stroke="#e5e7eb" width={getDynamicWidth(trending_titles, 'title')} tick={{fill: '#e5e7eb', fontSize: 12}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
                     <Bar dataKey="count" name="Active Job Postings" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>
@@ -132,7 +140,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                   <BarChart data={algoData.top_companies} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
                     <XAxis type="number" stroke="#6b7280" />
-                    <YAxis dataKey="company" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
+                    <YAxis dataKey="company" type="category" stroke="#e5e7eb" width={getDynamicWidth(algoData.top_companies, 'company')} tick={{fill: '#e5e7eb', fontSize: 12}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
                     <Bar dataKey="count" name="Open Roles" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>
@@ -154,7 +162,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                   <BarChart data={algoData.top_certificates} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
                     <XAxis type="number" stroke="#6b7280" />
-                    <YAxis dataKey="certificate" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
+                    <YAxis dataKey="certificate" type="category" stroke="#e5e7eb" width={getDynamicWidth(algoData.top_certificates, 'certificate')} tick={{fill: '#e5e7eb', fontSize: 12}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
                     <Bar dataKey="count" name="Requested in Jobs" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>
@@ -176,7 +184,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                   <BarChart data={algoData.top_learning_skills} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
                     <XAxis type="number" stroke="#6b7280" />
-                    <YAxis dataKey="skill" type="category" stroke="#e5e7eb" width={80} tick={{fill: '#e5e7eb'}} />
+                    <YAxis dataKey="skill" type="category" stroke="#e5e7eb" width={getDynamicWidth(algoData.top_learning_skills, 'skill')} tick={{fill: '#e5e7eb', fontSize: 12}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
                     <Bar dataKey="count" name="Learning Mentions" fill="#f97316" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>

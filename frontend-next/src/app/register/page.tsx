@@ -97,7 +97,7 @@ export default function RegisterPage() {
           {/* Turnstile Captcha */}
           <div className="flex justify-center mt-2">
             <Turnstile
-              siteKey="1x00000000000000000000AA"
+              siteKey="0x4AAAAAADv0uli2XL9wdroN"
               onSuccess={(token) => {
                 setCaptchaToken(token);
                 setVerified(true);

@@ -88,7 +88,7 @@ def run_scraper():
             logger.info(f"Scraping '{kw}' in '{location}'...")
             try:
                 df = scrape_jobs(
-                    site_name=["indeed", "linkedin", "glassdoor", "ziprecruiter", "google"],
+                    site_name=["indeed", "linkedin", "glassdoor"],
                     search_term=kw,
                     location=location,
                     results_wanted=500,

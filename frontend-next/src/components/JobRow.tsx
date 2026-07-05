@@ -41,10 +41,10 @@ export default function JobRow({ job, isSaved, onToggleSave, onClick }: JobRowPr
             const desc = (job.description || "").toLowerCase();
             const title = (job.title || "").toLowerCase();
             let empType = null;
-            if (desc.includes("contract") || desc.includes("1099") || desc.includes("c2c") || desc.includes("contract to hire")) empType = "Contract";
-            else if (desc.includes("intern") || title.includes("intern")) empType = "Internship";
-            else if (desc.includes("part-time") || desc.includes("part time")) empType = "Part-Time";
-            else if (desc.includes("full-time") || desc.includes("full time") || desc.includes("w2")) empType = "Full-Time";
+            if (/\b(contract|1099|c2c|contract to hire)\b/i.test(desc) || /\bcontract\b/i.test(title)) empType = "Contract";
+            else if (/\bintern(ship)?s?\b/i.test(desc) || /\bintern(ship)?s?\b/i.test(title)) empType = "Internship";
+            else if (/\bpart-time\b|\bpart time\b/i.test(desc) || /\bpart-time\b|\bpart time\b/i.test(title)) empType = "Part-Time";
+            else if (/\bfull-time\b|\bfull time\b|\bw2\b/i.test(desc) || /\bfull-time\b|\bfull time\b/i.test(title)) empType = "Full-Time";
             return empType ? <span className="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded text-xs border border-blue-500/20">{empType}</span> : null;
           })()}
           

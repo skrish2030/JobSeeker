@@ -138,6 +138,28 @@ export default function JobCard({ job, isSaved, onToggleSave }: JobCardProps) {
         {(() => {
           if (!job.description) return null;
           const desc = job.description.toLowerCase();
+          const title = (job.title || "").toLowerCase();
+          
+          let empType = null;
+          if (desc.includes("contract") || desc.includes("1099") || desc.includes("c2c") || desc.includes("contract to hire")) {
+             empType = "Contract";
+          } else if (desc.includes("intern") || title.includes("intern")) {
+             empType = "Internship";
+          } else if (desc.includes("part-time") || desc.includes("part time")) {
+             empType = "Part-Time";
+          } else if (desc.includes("full-time") || desc.includes("full time") || desc.includes("w2")) {
+             empType = "Full-Time";
+          }
+          
+          if (empType) {
+             return <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded-md border border-blue-500/20 font-medium">{empType}</span>;
+          }
+          return null;
+        })()}
+
+        {(() => {
+          if (!job.description) return null;
+          const desc = job.description.toLowerCase();
           const noSponsor = ["no visa sponsorship", "will not sponsor", "does not sponsor", "unable to sponsor", "no h1b", "no c2c", "us citizen or green card", "us citizens only", "no sponsorship"];
           const yesSponsor = ["h1b", "h-1b", "visa sponsorship", "sponsor visa", "sponsorship available", "will sponsor"];
           

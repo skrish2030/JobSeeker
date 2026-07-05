@@ -70,7 +70,9 @@ def run_predictive_engine():
     
     # 10-Year Exponential Growth Modeling for Bleeding Edge Tech
     future_trends_data = []
-    milestones = [("Current", 0), ("Year 3", 3), ("Year 5", 5), ("Year 10", 10)]
+    
+    current_year = datetime.now(UTC).year
+    milestones = [(str(current_year), 0), (str(current_year + 3), 3), (str(current_year + 5), 5), (str(current_year + 10), 10)]
     
     # Get top 4 future keywords to plot
     top_future = future_counts.most_common(4)

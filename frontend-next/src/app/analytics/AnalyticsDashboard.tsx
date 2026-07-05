@@ -62,7 +62,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
         </div>
 
         {/* Main Grid for Visualizations */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           
           {/* Top Skills Chart */}
           <div className="bg-[#1A1625] p-6 rounded-3xl border border-[#ffffff15] shadow-lg flex flex-col h-[400px]">
@@ -124,6 +124,72 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                     <YAxis dataKey="company" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
                     <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
                     <Bar dataKey="count" name="Open Roles" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={24} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          {/* Top Certificates Chart */}
+          <div className="bg-[#1A1625] p-6 rounded-3xl border border-[#ffffff15] shadow-lg flex flex-col h-[400px]">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <Code className="w-6 h-6 text-green-500" /> Top Certificates
+            </h2>
+            <div className="flex-1 w-full min-h-[300px]">
+              {(!algoData.top_certificates || algoData.top_certificates.length === 0) ? (
+                 <div className="h-full flex items-center justify-center text-gray-500">No certificate data available yet.</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={algoData.top_certificates} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
+                    <XAxis type="number" stroke="#6b7280" />
+                    <YAxis dataKey="certificate" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
+                    <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
+                    <Bar dataKey="count" name="Requested in Jobs" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={24} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          {/* Top Skills to Learn */}
+          <div className="bg-[#1A1625] p-6 rounded-3xl border border-[#ffffff15] shadow-lg flex flex-col h-[400px]">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-orange-500" /> Community Learning Focus
+            </h2>
+            <div className="flex-1 w-full min-h-[300px]">
+              {(!algoData.top_learning_skills || algoData.top_learning_skills.length === 0) ? (
+                 <div className="h-full flex items-center justify-center text-gray-500">No learning data available yet.</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={algoData.top_learning_skills} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
+                    <XAxis type="number" stroke="#6b7280" />
+                    <YAxis dataKey="skill" type="category" stroke="#e5e7eb" width={80} tick={{fill: '#e5e7eb'}} />
+                    <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
+                    <Bar dataKey="count" name="Learning Mentions" fill="#f97316" radius={[0, 4, 4, 0]} barSize={24} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          {/* 3-Year Future Outlook */}
+          <div className="bg-gradient-to-br from-purple-900/40 to-[#1A1625] p-6 rounded-3xl border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.15)] flex flex-col h-[400px]">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-purple-400" /> 3-Year Future Outlook
+            </h2>
+            <div className="flex-1 w-full min-h-[300px]">
+              {(!algoData.future_trends || algoData.future_trends.length === 0) ? (
+                 <div className="h-full flex items-center justify-center text-gray-500">No future trend data available yet.</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={algoData.future_trends} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
+                    <XAxis type="number" stroke="#6b7280" />
+                    <YAxis dataKey="trend" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
+                    <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
+                    <Bar dataKey="momentum" name="Prediction Score" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={24} />
                   </BarChart>
                 </ResponsiveContainer>
               )}

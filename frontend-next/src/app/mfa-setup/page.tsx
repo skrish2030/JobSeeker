@@ -17,7 +17,12 @@ export default function MfaSetupPage() {
   useEffect(() => {
     async function setupMFA() {
       try {
-        const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data, error } = await supabase.auth.mfa.enroll({ 
+          factorType: 'totp',
+          issuer: 'JobSeeker',
+          friendlyName: user?.email || 'Account'
+        });
         if (error) throw error;
         
         if (data.totp.qr_code) {

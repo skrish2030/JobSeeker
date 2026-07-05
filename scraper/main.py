@@ -60,6 +60,11 @@ def run_scraper():
     if not keywords: keywords = ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Engineer", "Python Developer", "React Developer", "DevOps Engineer"]
     if not locations: locations = ["Remote"]
     
+    # Automatically append "Intern" to the keywords so the Internships tab gets populated
+    intern_keywords = [f"{kw} Intern" for kw in keywords]
+    keywords.extend(intern_keywords)
+    keywords = list(set(keywords))
+    
     # Create log entry
     log_res = supabase.table("scrape_log").insert({
         "run_id": os.environ.get("GITHUB_RUN_ID", "local"),

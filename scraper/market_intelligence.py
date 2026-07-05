@@ -20,11 +20,13 @@ def get_reddit_posts(subreddit):
             # Skip pinned/stickied posts
             if post.get('stickied'):
                 continue
+            title_val = post.get('title') or ''
+            text_val = post.get('selftext') or ''
             posts.append({
                 'source_type': 'reddit',
                 'author': f"r/{subreddit}",
-                'title': post.get('title', ''),
-                'text': post.get('selftext', '')[:1000], # limit text
+                'title': title_val,
+                'text': text_val[:1000],
                 'url': f"https://reddit.com{post.get('permalink')}"
             })
         return posts

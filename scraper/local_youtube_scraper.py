@@ -17,7 +17,14 @@ def get_supabase() -> Client:
     return create_client(url, key)
 
 def fetch_youtube_intelligence():
-    queries = ["tech job market 2026", "software engineering job market 2026", "tech layoffs 2026", "hiring trends programming 2026"]
+    queries = [
+        "latest tech jobs 2026", 
+        "NetworkChuck tech job market", 
+        "Programming with Mosh software engineering 2026", 
+        "freeCodeCamp tech jobs", 
+        "tech layoffs 2026 MKBHD",
+        "Dave2D tech industry 2026"
+    ]
     raw_posts = []
 
     for query in queries:

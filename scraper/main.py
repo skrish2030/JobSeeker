@@ -99,37 +99,58 @@ def run_scraper():
                 if df is None or df.empty:
                     continue
                     
+                # Prepare all hashes for this batch
+                batch_jobs = []
                 for _, row in df.iterrows():
                     job_url = row.get("job_url") or row.get("job_url_direct") or ""
                     if not job_url:
                         continue
-                        
+                    
                     title = row.get("title") or "Untitled"
                     company = row.get("company") or "Unknown"
                     loc = row.get("location") or location
-                    
-                    # Hash for deduplication
                     hash_str = f"{title}-{company}-{loc}".lower()
                     job_hash = hashlib.md5(hash_str.encode('utf-8')).hexdigest()
                     
-                    # Check if exists
-                    existing = supabase.table("jobs").select("id").eq("job_hash", job_hash).execute()
-                    if existing.data:
-                        continue
-                    
-                    desc = row.get("description") or ""
-                    
-                    # Smart Local Scoring
-                    score = calculate_local_score(title, desc, keywords)
-                    
-                    # Insert job
-                    job_data = {
+                    batch_jobs.append({
                         "job_hash": job_hash,
                         "title": title,
                         "company": company,
                         "location": loc,
+                        "row_data": row,
+                        "job_url": job_url
+                    })
+                    
+                if not batch_jobs:
+                    continue
+                    
+                # 1. BULK FETCH: Check all hashes at once to save API calls
+                all_hashes = [b["job_hash"] for b in batch_jobs]
+                existing_hashes = set()
+                # Break into chunks of 100 for the IN clause to avoid URL length limits
+                for i in range(0, len(all_hashes), 100):
+                    chunk = all_hashes[i:i+100]
+                    res = supabase.table("jobs").select("job_hash").in_("job_hash", chunk).execute()
+                    if res.data:
+                        existing_hashes.update([r["job_hash"] for r in res.data])
+                        
+                # 2. FILTER: Keep only new jobs
+                new_jobs_to_insert = []
+                for b in batch_jobs:
+                    if b["job_hash"] in existing_hashes:
+                        continue
+                        
+                    row = b["row_data"]
+                    desc = row.get("description") or ""
+                    score = calculate_local_score(b["title"], desc, keywords)
+                    
+                    job_data = {
+                        "job_hash": b["job_hash"],
+                        "title": b["title"],
+                        "company": b["company"],
+                        "location": b["location"],
                         "source_site": row.get("site", "unknown"),
-                        "job_url": job_url,
+                        "job_url": b["job_url"],
                         "description": desc,
                         "min_amount": row.get("min_amount"),
                         "max_amount": row.get("max_amount"),
@@ -141,16 +162,21 @@ def run_scraper():
                     
                     # Handle pandas NaN which JSON can't serialize
                     for k, v in job_data.items():
-                        if pd.isna(v):
-                            job_data[k] = None
-                            
-                    try:
-                        supabase.table("jobs").insert(job_data).execute()
-                        jobs_inserted += 1
-                    except Exception as insert_e:
-                        logger.error(f"Failed to insert job {title}: {insert_e}")
-                        errors_count += 1
+                        if pd.isna(v): job_data[k] = None
                         
+                    new_jobs_to_insert.append(job_data)
+                    
+                # 3. BULK INSERT: Insert new jobs in chunks to save API calls
+                if new_jobs_to_insert:
+                    for i in range(0, len(new_jobs_to_insert), 100):
+                        chunk = new_jobs_to_insert[i:i+100]
+                        try:
+                            supabase.table("jobs").insert(chunk).execute()
+                            jobs_inserted += len(chunk)
+                        except Exception as insert_e:
+                            logger.error(f"Bulk insert failed: {insert_e}")
+                            errors_count += len(chunk)
+                            
             except Exception as e:
                 logger.error(f"Scraper failed for {kw} in {location}: {e}")
                 errors_count += 1

@@ -19,7 +19,7 @@ def run_analytics():
     
     # 1. Fetch latest 1,000 jobs
     logger.info("Fetching latest 1,000 jobs for analytics...")
-    response = supabase.table("jobs").select("title, description, location").order("created_at", desc=True).limit(1000).execute()
+    response = supabase.table("jobs").select("title, description, location").order("scraped_at", desc=True).limit(1000).execute()
     jobs = response.data
     
     if not jobs:

@@ -4,15 +4,17 @@ import json
 from datetime import datetime, timedelta
 from supabase import create_client, Client
 import google.generativeai as genai
+from dotenv import load_dotenv
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("daily_ai_analysis")
 
 def get_supabase() -> Client:
     url = os.environ.get("SUPABASE_URL")
-    key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") # Use role key for full access
+    key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY")
     if not url or not key:
-        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set")
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set")
     return create_client(url, key)
 
 def run_daily_ai_analysis():
@@ -40,7 +42,7 @@ def run_daily_ai_analysis():
         
     # 2. Fetch yesterday's Job Trends (just the top roles/skills)
     # We will grab the latest analytics_insights local generation as our baseline
-    analytics_res = supabase.table("analytics_insights").select("id, trending_skills, trending_titles").order("created_at", desc=True).limit(1).execute()
+    analytics_res = supabase.table("analytics_insights").select("id, trending_skills, trending_titles").eq("is_latest", True).limit(1).execute()
     jobs_data = analytics_res.data[0] if analytics_res.data else {"trending_skills": [], "trending_titles": []}
     
     # 2b. Aggregate and categorize community pulse to save AI tokens
@@ -108,30 +110,37 @@ def run_daily_ai_analysis():
     --- 2. COMMUNITY PULSE (Aggregated from Reddit & YouTube) ---
     {json.dumps(community_summary, indent=2)}
     
-    Based on this combined dataset, write a highly engaging, professional 3-paragraph "Daily AI Market Analysis".
-    - Paragraph 1: What is the overall mood right now (layoffs, hiring boom, AI anxiety)?
-    - Paragraph 2: What are the hottest jobs and specific skills that employers are actively paying for today?
-    - Paragraph 3: What is your strategic advice to job seekers based on what people on YouTube/Reddit are saying vs what employers actually want?
+    Based on this combined dataset, you MUST output a raw JSON object containing exactly two keys:
+    1. "market_mood": A single, high-impact sentence summarizing the overall mood right now (e.g. "The market is heavily focused on AI anxieties but hiring remains strong for robust engineering fundamentals.").
+    2. "trending_topics": An array of up to 5 objects showing the hottest topics being discussed in the community. Format: [{{"topic": "AI taking jobs", "heat_score": 85}}, {{"topic": "Remote work", "heat_score": 40}}].
     
-    Do not use markdown blocks, just return the text.
+    Output ONLY the raw JSON object. Do not include markdown formatting blocks like ```json.
     """
     
     try:
         logger.info("Calling Gemini API...")
         resp = model.generate_content(prompt)
         ai_summary = resp.text.strip()
-        
+        if ai_summary.startswith("```json"):
+            ai_summary = ai_summary.replace("```json", "").replace("```", "").strip()
+            
         # 4. Save to Database
-        # We will update the latest analytics_insights row to include this AI summary
         if analytics_res.data:
             latest_id = analytics_res.data[0].get("id")
             if latest_id:
                 supabase.table("analytics_insights").update({
-                    "ai_market_summary": f"🤖 AI Daily Report: {ai_summary}"
+                    "ai_market_summary": ai_summary
                 }).eq("id", latest_id).execute()
-                logger.info("Successfully updated the frontend with the new Daily AI Summary!")
-            else:
-                logger.warning("Could not find ID to update analytics_insights.")
+                logger.info("Successfully updated the frontend with the new Daily AI JSON Summary!")
+        else:
+            supabase.table("analytics_insights").insert({
+                "ai_market_summary": ai_summary,
+                "is_latest": True,
+                "trending_skills": [],
+                "trending_titles": [],
+                "total_jobs_analyzed": 0
+            }).execute()
+            logger.info("Successfully created a NEW Daily AI JSON Summary because no job data existed!")
     except Exception as e:
         logger.error(f"Failed to generate or save AI analysis: {e}")
 

@@ -60,14 +60,22 @@ def run_analytics():
     ]
     
     skill_counts = Counter()
+    company_counts = Counter()
     for j in jobs:
         desc = j.get("description", "").lower()
+        company = j.get("company", "").strip()
+        if company:
+            company_counts[company] += 1
+            
         for skill in skill_keywords:
             if skill.lower() in desc:
                 skill_counts[skill] += 1
                 
     top_skills = skill_counts.most_common(15)
     trending_skills = [{"skill": k, "count": v} for k, v in top_skills]
+    
+    top_companies_list = company_counts.most_common(10)
+    top_companies = [{"company": k, "count": v} for k, v in top_companies_list]
     
     # 4. Generate Local Market Summary
     top_skill_names = [s["skill"] for s in trending_skills[:3]]
@@ -89,6 +97,7 @@ def run_analytics():
         "total_jobs_analyzed": len(jobs),
         "trending_skills": trending_skills,
         "trending_titles": trending_titles,
+        "top_companies": top_companies,
         "ai_market_summary": ai_summary,
         "is_latest": True
     }).execute()

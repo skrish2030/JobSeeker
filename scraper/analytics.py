@@ -56,7 +56,7 @@ def run_analytics():
     skill_keywords = [
         "Python", "JavaScript", "TypeScript", "React", "Node.js", "Java", "C++", 
         "C#", "Go", "Ruby", "AWS", "Azure", "GCP", "Docker", "Kubernetes", "SQL", 
-        "PostgreSQL", "MongoDB", "Redis", "GraphQL", "REST API", "Next.js", "Tailwind"
+        "PostgreSQL", "MongoDB", "Redis", "GraphQL", "REST API", "Next.js", "Tailwind", "SAS"
     ]
     
     skill_counts = Counter()

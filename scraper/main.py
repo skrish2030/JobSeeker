@@ -46,7 +46,7 @@ def run_scraper():
         "Product Manager", "Project Manager", "UX Designer", "UI Designer",
         "Marketing Manager", "Sales Manager", "Account Executive", "Business Analyst",
         "Registered Nurse", "Healthcare Administration", "Financial Analyst", "Accountant",
-        "Operations Manager", "Customer Success"
+        "Operations Manager", "Customer Success", "SAS Statistical Programmer"
     ]
     broad_locations = [
         "Remote", "New York, NY", "San Francisco, CA", "Austin, TX", "Seattle, WA", 

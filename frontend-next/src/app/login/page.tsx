@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { login } from './actions';
+import { Turnstile } from '@marsidev/react-turnstile';
+import { createClient } from '@/utils/supabase/client';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,16 +16,14 @@ export default function LoginPage() {
   
   // Captcha State
   const [verified, setVerified] = useState(false);
-  const [dragOffset, setDragOffset] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const handleRef = useRef<HTMLDivElement>(null);
+  const [captchaToken, setCaptchaToken] = useState('');
   const router = useRouter();
+  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!verified) {
-      setError('Please complete the security swipe.');
+      setError('Please complete the security check.');
       return;
     }
     
@@ -31,65 +31,27 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await login(email, password);
+      const res = await login(email, password, captchaToken);
       if (res?.error) throw new Error(res.error);
-      router.push('/');
-      router.refresh();
+      
+      // Check MFA Status
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw new Error(factorsError.message);
+
+      if (factors.totp.length === 0) {
+        // Force MFA Setup on first login
+        router.push('/mfa-setup');
+      } else {
+        // MFA is already set up, verify it
+        router.push('/mfa-verify');
+      }
+      
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
-  // Captcha Logic
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    if (verified) return;
-    setIsDragging(true);
-  };
-
-  const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    if (!isDragging || verified || !trackRef.current || !handleRef.current) return;
-    
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const trackRect = trackRef.current.getBoundingClientRect();
-    const handleRect = handleRef.current.getBoundingClientRect();
-    
-    let newOffset = clientX - trackRect.left - (handleRect.width / 2);
-    const maxOffset = trackRect.width - handleRect.width;
-    
-    if (newOffset < 0) newOffset = 0;
-    if (newOffset >= maxOffset) {
-      newOffset = maxOffset;
-      setVerified(true);
-      setIsDragging(false);
-    }
-    
-    setDragOffset(newOffset);
-  };
-
-  const handleDragEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    if (!verified) {
-      setDragOffset(0); // snap back
-    }
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleDragMove);
-      window.addEventListener('touchmove', handleDragMove, { passive: false });
-      window.addEventListener('mouseup', handleDragEnd);
-      window.addEventListener('touchend', handleDragEnd);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleDragMove);
-      window.removeEventListener('touchmove', handleDragMove);
-      window.removeEventListener('mouseup', handleDragEnd);
-      window.removeEventListener('touchend', handleDragEnd);
-    };
-  }, [isDragging, verified]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0A0710] to-[#0A0710] p-4 font-sans">
@@ -138,33 +100,24 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Swipe Captcha */}
-          <div 
-            ref={trackRef}
-            className={`relative w-full h-12 rounded-xl border mt-2 flex items-center justify-center overflow-hidden select-none transition-colors ${verified ? 'bg-green-500/20 border-green-500/40' : 'bg-[#1A1625] border-[#ffffff15]'}`}
-          >
-            <div 
-              className={`absolute top-0 left-0 h-full transition-all ${verified ? 'bg-green-500/30' : 'bg-indigo-500/20'}`} 
-              style={{ width: `${dragOffset + 24}px` }}
+          {/* Turnstile Captcha */}
+          <div className="flex justify-center mt-2">
+            <Turnstile
+              siteKey="1x00000000000000000000AA"
+              onSuccess={(token) => {
+                setCaptchaToken(token);
+                setVerified(true);
+              }}
+              onError={() => {
+                setError("Captcha failed. Please try again.");
+                setVerified(false);
+              }}
+              onExpire={() => {
+                setVerified(false);
+                setCaptchaToken('');
+              }}
+              options={{ theme: 'dark' }}
             />
-            
-            <span className={`z-0 text-sm font-semibold transition-colors ${verified ? 'text-green-400' : 'text-gray-400'}`}>
-              {verified ? 'Verified ✓' : 'Slide to Verify'}
-            </span>
-
-            <div
-              ref={handleRef}
-              onMouseDown={handleDragStart}
-              onTouchStart={handleDragStart}
-              style={{ transform: `translateX(${dragOffset}px)` }}
-              className={`absolute left-1 top-1 w-10 h-10 rounded-lg cursor-grab flex items-center justify-center shadow-lg transition-transform ${isDragging ? 'cursor-grabbing scale-105' : verified ? 'cursor-default' : ''} ${verified ? 'bg-green-500 text-white' : 'bg-[#2A2438] border border-[#ffffff20] text-gray-300 hover:bg-[#322B42]'}`}
-            >
-              {verified ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
-              )}
-            </div>
           </div>
 
           {error && <div className="p-3 mt-1 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center font-medium">{error}</div>}

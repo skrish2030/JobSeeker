@@ -23,20 +23,35 @@ def fetch_youtube_intelligence():
     for query in queries:
         logger.info(f"Searching YouTube for: {query}")
         try:
-            videos_search = VideosSearch(query, limit=2)
-            results = videos_search.result()['result']
+            import urllib.request
+            import urllib.parse
+            import re
             
-            for video in results:
-                video_id = video['id']
-                title = video.get('title', '')
-                channel = video.get('channel', {}).get('name', 'Unknown')
-                url = video.get('link', f"https://youtube.com/watch?v={video_id}")
+            search_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
+            req = urllib.request.Request(search_url, headers={'User-Agent': 'Mozilla/5.0'})
+            html = urllib.request.urlopen(req).read().decode()
+            
+            # Extract video IDs
+            video_ids = re.findall(r"watch\?v=(\S{11})", html)
+            unique_ids = []
+            for vid in video_ids:
+                if vid not in unique_ids:
+                    unique_ids.append(vid)
+                    
+            for video_id in unique_ids[:2]:
+                title = f"YouTube Video: {query}" # Fallback title since we bypass API
+                channel = "unknown"
+                url = f"https://youtube.com/watch?v={video_id}"
                 
                 # Fetch transcript
                 try:
-                    transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+                    ytt_api = YouTubeTranscriptApi()
+                    transcript_list = ytt_api.list(video_id)
+                    transcript = transcript_list.find_transcript(['en'])
+                    transcript_data = transcript.fetch()
+                    
                     # Join the first 100 lines to keep it manageable
-                    text = " ".join([t['text'] for t in transcript_list[:100]])
+                    text = " ".join([getattr(t, 'text', '') for t in transcript_data[:100]])
                 except Exception as e:
                     logger.warning(f"Could not fetch transcript for {title}: {e}")
                     text = "No transcript available."
@@ -53,6 +68,10 @@ def fetch_youtube_intelligence():
                     # Actually, let's append it so the AI can read it from the database
                     "content_summary": f"Title: {title} | Transcript snippet: {text[:800]}..."
                 })
+                
+                # Sleep to mimic human behavior and avoid IP blocks
+                import time
+                time.sleep(10)
         except Exception as e:
             logger.error(f"Failed searching {query}: {e}")
 

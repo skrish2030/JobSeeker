@@ -70,29 +70,34 @@ def run_scraper():
     
     jobs_inserted = 0
     errors_count = 0
-        
+    
     import random
-    # To prevent IP bans from massive bursts, we shuffle and pick a random subset per cycle.
-    # The cron runs every 4 hours, so over a week it covers the entire matrix.
+    import time
+    
+    # Ultra-stealthy mode: Pick 1 random site, 1 random location, and 2 random keywords per run
+    available_sites = ["indeed", "linkedin", "glassdoor", "zip_recruiter", "google"]
+    target_site = random.choice(available_sites)
+    
     random.shuffle(locations)
     random.shuffle(keywords)
-    
-    # Pick 2 random locations and 4 random keywords per run (8 iterations total instead of 484)
-    target_locations = locations[:2]
-    target_keywords = keywords[:4]
+    target_locations = locations[:1]
+    target_keywords = keywords[:2]
         
     for location in target_locations:
         for kw in target_keywords:
-            logger.info(f"Scraping '{kw}' in '{location}'...")
+            logger.info(f"Scraping '{kw}' in '{location}' on {target_site}...")
             try:
                 df = scrape_jobs(
-                    site_name=["indeed", "linkedin", "glassdoor", "zip_recruiter", "google"],
+                    site_name=[target_site],
                     search_term=kw,
                     location=location,
-                    results_wanted=100,
+                    results_wanted=50, # Keep results small per request to avoid pagination bans
                     hours_old=72,
                     country_indeed="usa"
                 )
+                
+                # Slow and steady delay to mimic human behavior
+                time.sleep(15)
                 
                 if df is None or df.empty:
                     continue

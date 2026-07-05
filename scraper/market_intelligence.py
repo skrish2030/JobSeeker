@@ -2,7 +2,6 @@ import os
 import requests
 import json
 import logging
-import google.generativeai as genai
 from supabase import create_client
 
 logging.basicConfig(level=logging.INFO)
@@ -76,51 +75,7 @@ def extract_insights_locally(raw_posts):
         
     return insights[:20]
 
-def extract_insights_with_gemini(raw_posts):
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        logger.warning("GOOGLE_API_KEY not set, falling back to local heuristics.")
-        return extract_insights_locally(raw_posts)
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-2.5-flash')
-
-    prompt = f"""
-    You are a Chief Market Strategist and Senior Executive Recruiter with 30+ years of industry experience. Your ultimate goal is to support candidates end-to-end: to alert them to what the world thinks, which skills are hot right now, what they need to learn, which certificates are best, and when they should consider pivoting their career to achieve their goals. Think logically, be incredibly smart, and do not waste tokens.
-    
-    Analyze these recent community discussions to extract actionable 'Market Intelligence' regarding jobs, hiring trends, and skills.
-    
-    Raw Posts Data:
-    {json.dumps(raw_posts, indent=2)}
-
-    For each post that is relevant to careers, skills, or hiring trends, generate a JSON object. 
-    Ignore posts that are irrelevant (e.g., memes, unrelated questions).
-    
-    Output a JSON array of objects with this EXACT structure (no markdown blocks, just raw JSON):
-    [
-      {{
-        "source_type": "reddit",
-        "author": "r/...",
-        "content_summary": "A 2-3 sentence strategic analysis. Do NOT just summarize the post. Instead, act as a mentor: alert the user to the trend, tell them exactly what skills/certificates to learn based on this, and advise them if this means they should switch careers or double down.",
-        "trending_skills_detected": ["excel", "project management", "python", "AWS Certified Solutions Architect"], // Extract ANY professional skill or certificate mentioned
-        "sentiment": "Positive", // Or "Negative", "Neutral"
-        "url": "url from the raw data"
-      }}
-    ]
-    """
-
-    try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.endswith("```"):
-            text = text[:-3]
-        
-        return json.loads(text)
-    except Exception as e:
-        logger.error(f"Gemini Analysis failed: {e}")
-        return extract_insights_locally(raw_posts)
 
 def run_intelligence():
     # 1. Gather Raw Data across broad career subreddits

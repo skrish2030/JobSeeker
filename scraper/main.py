@@ -39,9 +39,6 @@ def calculate_local_score(title: str, desc: str, target_keywords: list) -> int:
 def run_scraper():
     supabase = get_supabase()
     
-    # Target keywords and locations from user settings
-    settings_res = supabase.table("user_settings").select("target_job_title, target_location").execute()
-    
     # We want a massive generalized pool, so we start with a huge baseline
     broad_keywords = [
         "Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack", 
@@ -58,15 +55,6 @@ def run_scraper():
     
     keywords = list(broad_keywords)
     locations = list(broad_locations)
-    
-    if settings_res.data:
-        user_kws = [s["target_job_title"] for s in settings_res.data if s.get("target_job_title")]
-        user_locs = [s["target_location"] for s in settings_res.data if s.get("target_location")]
-        keywords.extend(user_kws)
-        locations.extend(user_locs)
-        
-    keywords = list(set(keywords))
-    locations = list(set(locations))
     
     # Automatically append "Intern" to the keywords so the Internships tab gets populated
     intern_keywords = [f"{kw} Intern" for kw in keywords]

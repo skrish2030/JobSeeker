@@ -246,7 +246,23 @@ export default function SettingsPage() {
                         placeholder={aiProvider === 'openai' ? 'sk-...' : aiProvider === 'anthropic' ? 'sk-ant-...' : 'AIzaSy...'}
                         className="w-full bg-[#0A0710] border border-[#ffffff15] rounded-xl px-4 py-3 text-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
                       />
-                      <p className="text-xs text-gray-500 mt-2">Stored securely in your local browser storage for client-side AI features.</p>
+                      <p className="text-xs text-gray-500 mt-2 mb-3">Stored securely in your local browser storage for client-side AI features.</p>
+                      
+                      {aiProvider === 'gemini' && (
+                        <div className="text-sm text-indigo-300 bg-indigo-500/10 p-3 rounded-lg border border-indigo-500/20">
+                          <strong>Get your API key at <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="underline hover:text-indigo-200">Google AI Studio</a>.</strong> Gemini offers a generous free tier (15 requests/min) which is perfect for this app!
+                        </div>
+                      )}
+                      {aiProvider === 'openai' && (
+                        <div className="text-sm text-yellow-300 bg-yellow-500/10 p-3 rounded-lg border border-yellow-500/20">
+                          <strong>Get your API key at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" className="underline hover:text-yellow-200">OpenAI Platform</a>.</strong> Note: You MUST have pre-funded API credits in your billing account (ChatGPT Plus subscription does not count).
+                        </div>
+                      )}
+                      {aiProvider === 'anthropic' && (
+                        <div className="text-sm text-orange-300 bg-orange-500/10 p-3 rounded-lg border border-orange-500/20">
+                          <strong>Get your API key at <a href="https://console.anthropic.com/" target="_blank" rel="noreferrer" className="underline hover:text-orange-200">Anthropic Console</a>.</strong> Note: API credits are required. New accounts may receive free trial credits.
+                        </div>
+                      )}
                     </div>
                   </>
                 )}

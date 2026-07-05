@@ -185,10 +185,10 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
             </div>
           </div>
 
-          {/* 3-Year Future Outlook */}
+          {/* 10-Year Technology Forecast */}
           <div className="bg-gradient-to-br from-purple-900/40 to-[#1A1625] p-6 rounded-3xl border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.15)] flex flex-col h-[400px]">
             <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-purple-400" /> 3-Year Future Outlook
+              <TrendingUp className="w-6 h-6 text-purple-400" /> 10-Year Technology Forecast
             </h2>
             <div className="flex-1 w-full min-h-[300px]">
               {(!algoData.future_trends || algoData.future_trends.length === 0) ? (

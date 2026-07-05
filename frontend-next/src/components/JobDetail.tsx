@@ -100,7 +100,7 @@ export default function JobDetail({ job, isSaved, onToggleSave, onBack }: JobDet
     : (job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Recent');
 
   return (
-    <div className="bg-[#0A0710] min-h-full">
+    <div className="bg-[#0A0710]">
       {/* Header Banner */}
       <div className="bg-[#15121E] border-b border-[#ffffff10] sticky top-0 z-20 shadow-2xl backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-8 py-6">

@@ -29,14 +29,6 @@ def calculate_local_score(title: str, desc: str, target_keywords: list) -> int:
             score += 25
             break
             
-    # Penalize for senior/lead if we assume mid-level
-    if any(x in title_lower for x in ["senior", "sr", "lead", "staff", "principal", "director"]):
-        score -= 20
-        
-    # Penalize for intern/junior if we assume mid-level
-    if any(x in title_lower for x in ["intern", "junior", "jr", "student"]):
-        score -= 20
-        
     # Boost for common modern tech stack in desc
     tech_stack = ["react", "node", "python", "aws", "typescript", "docker", "kubernetes", "sql", "postgres", "next.js", "tailwind"]
     matches = sum(1 for tech in tech_stack if tech in desc_lower)

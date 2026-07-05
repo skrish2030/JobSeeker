@@ -30,13 +30,34 @@ export default function Home() {
 
   async function fetchJobs(search = '', loc = '') {
     setLoading(true);
+    let activeSearch = search;
+    let activeLoc = loc;
+
+    // If no explicit search terms are provided, default to user's targeted settings!
+    if (!search && !loc) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: settings } = await supabase.from('user_settings').select('target_job_title, target_location').eq('user_id', user.id).single();
+        if (settings) {
+          if (settings.target_job_title) {
+            activeSearch = settings.target_job_title;
+            setSearchTerm(activeSearch); // Populate UI search bar so user sees the filter
+          }
+          if (settings.target_location) {
+            activeLoc = settings.target_location;
+            setLocationTerm(activeLoc); // Populate UI location bar
+          }
+        }
+      }
+    }
+
     let query = supabase.from('jobs').select('*').order('posted_date', { ascending: false }).limit(50);
     
-    if (search) {
-      query = query.ilike('title', `%${search}%`);
+    if (activeSearch) {
+      query = query.ilike('title', `%${activeSearch}%`);
     }
-    if (loc) {
-      query = query.ilike('location', `%${loc}%`);
+    if (activeLoc) {
+      query = query.ilike('location', `%${activeLoc}%`);
     }
 
     const { data, error } = await query;

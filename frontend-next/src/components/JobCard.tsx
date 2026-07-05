@@ -144,9 +144,6 @@ export default function JobCard({ job, isSaved, onToggleSave }: JobCardProps) {
           
           {/* AI Features Bar */}
           <div className="flex flex-wrap gap-3 mb-6">
-            <button onClick={() => handleGenerateAI('score')} disabled={isAiLoading} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg disabled:opacity-50">
-              <span className="text-lg">✨</span> AI Match Score
-            </button>
             <button onClick={() => handleGenerateAI('cover_letter')} disabled={isAiLoading} className="flex items-center gap-2 px-4 py-2 bg-[#2A2438] hover:bg-[#342D45] border border-[#ffffff10] text-gray-200 text-sm font-semibold rounded-xl transition-colors disabled:opacity-50">
               📝 Draft Cover Letter
             </button>
@@ -161,19 +158,7 @@ export default function JobCard({ job, isSaved, onToggleSave }: JobCardProps) {
           {isAiLoading && (
             <div className="mb-6 p-4 rounded-xl bg-purple-900/20 border border-purple-500/30 flex items-center gap-3">
               <div className="w-5 h-5 border-2 border-t-purple-400 border-purple-400/20 rounded-full animate-spin"></div>
-              <span className="text-purple-300 text-sm animate-pulse">Gemini is analyzing this role...</span>
-            </div>
-          )}
-
-          {matchScore !== null && (
-            <div className="mb-6 p-6 rounded-2xl bg-gradient-to-br from-[#1A1625] to-[#120F1A] border border-purple-500/20 shadow-inner">
-              <div className="flex items-center gap-4 mb-3">
-                <div className={`text-3xl font-black ${matchScore >= 80 ? 'text-green-400' : matchScore >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>
-                  {matchScore}%
-                </div>
-                <div className="text-lg font-bold text-gray-200">Match Score</div>
-              </div>
-              <p className="text-gray-400 text-sm leading-relaxed">{aiAnalysis}</p>
+              <span className="text-purple-300 text-sm animate-pulse">AI is drafting your cover letter...</span>
             </div>
           )}
 

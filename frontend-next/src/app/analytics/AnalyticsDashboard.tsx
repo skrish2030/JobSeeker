@@ -58,15 +58,19 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
               <Code className="w-6 h-6 text-pink-500" /> Most Requested Skills
             </h2>
             <div className="flex-1 w-full min-h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trending_skills || []} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
-                  <XAxis type="number" stroke="#6b7280" />
-                  <YAxis dataKey="skill" type="category" stroke="#e5e7eb" width={80} tick={{fill: '#e5e7eb'}} />
-                  <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
-                  <Bar dataKey="count" fill="#ec4899" radius={[0, 4, 4, 0]} barSize={24} />
-                </BarChart>
-              </ResponsiveContainer>
+              {(!trending_skills || trending_skills.length === 0) ? (
+                 <div className="h-full flex items-center justify-center text-gray-500">No skill data available yet.</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={trending_skills} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
+                    <XAxis type="number" stroke="#6b7280" />
+                    <YAxis dataKey="skill" type="category" stroke="#e5e7eb" width={80} tick={{fill: '#e5e7eb'}} />
+                    <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
+                    <Bar dataKey="count" fill="#ec4899" radius={[0, 4, 4, 0]} barSize={24} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
 
@@ -76,15 +80,19 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
               <Briefcase className="w-6 h-6 text-purple-500" /> Trending Tech Roles
             </h2>
             <div className="flex-1 w-full min-h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trending_titles || []} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
-                  <XAxis type="number" stroke="#6b7280" />
-                  <YAxis dataKey="title" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
-                  <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
-                  <Bar dataKey="count" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={24} />
-                </BarChart>
-              </ResponsiveContainer>
+              {(!trending_titles || trending_titles.length === 0) ? (
+                 <div className="h-full flex items-center justify-center text-gray-500">No role data available yet.</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={trending_titles} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={true} vertical={false} />
+                    <XAxis type="number" stroke="#6b7280" />
+                    <YAxis dataKey="title" type="category" stroke="#e5e7eb" width={100} tick={{fill: '#e5e7eb', fontSize: 12}} />
+                    <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
+                    <Bar dataKey="count" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={24} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
 

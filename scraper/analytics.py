@@ -97,7 +97,6 @@ def run_analytics():
         "total_jobs_analyzed": len(jobs),
         "trending_skills": trending_skills,
         "trending_titles": trending_titles,
-        "top_companies": top_companies,
         "ai_market_summary": ai_summary,
         "is_latest": True
     }).execute()

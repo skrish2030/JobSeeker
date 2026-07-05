@@ -22,6 +22,25 @@ export default function InterviewPage() {
 
   useEffect(() => {
     fetchSavedJobs();
+
+    // Handle tab switching (pause) and component unmount (cancel)
+    const handleVisibilityChange = () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        if (document.hidden) {
+          window.speechSynthesis.pause();
+        } else {
+          window.speechSynthesis.resume();
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, []);
 
   async function fetchSavedJobs() {

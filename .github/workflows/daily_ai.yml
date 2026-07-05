@@ -1,4 +1,4 @@
-name: Daily AI Market Analysis
+name: Algorithmic Market Predictions
 
 on:
   schedule:
@@ -24,9 +24,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r scraper/requirements.txt
 
-      - name: Run Daily AI Analysis
+      - name: Run Algorithmic Market Predictions
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: python scraper/daily_ai_analysis.py
+        run: python scraper/predictive_analytics.py

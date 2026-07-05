@@ -9,16 +9,16 @@ const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#f59e0b']
 export default function AnalyticsDashboard({ insights, marketFeed }: { insights: any, marketFeed: any[] }) {
   const { total_jobs_analyzed, ai_market_summary, trending_skills, trending_titles, top_companies, generated_at } = insights
 
-  // Parse Gemini's JSON
-  let aiData = { market_mood: "Analyzing market mood...", trending_topics: [] }
+  // Parse Algorithmic JSON
+  let algoData: any = { market_mood: "Analyzing market mood...", trending_topics: [], source_metrics: null }
   try {
     if (ai_market_summary && ai_market_summary.includes('{')) {
-      aiData = JSON.parse(ai_market_summary)
+      algoData = JSON.parse(ai_market_summary)
     } else if (ai_market_summary) {
-       aiData.market_mood = ai_market_summary.replace("🤖 AI Daily Report: ", "")
+       algoData.market_mood = ai_market_summary
     }
   } catch (e) {
-    console.error("Failed to parse AI JSON", e)
+    console.error("Failed to parse Algorithmic JSON", e)
   }
 
   return (
@@ -31,21 +31,33 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
             <h1 className="text-3xl font-bold text-white flex items-center gap-3">
               <TrendingUp className="w-8 h-8 text-indigo-500" /> Market Analytics
             </h1>
-            <p className="text-gray-400 mt-2">
-              Based on an analysis of <strong className="text-indigo-400">{total_jobs_analyzed}</strong> recently scraped jobs.
-            </p>
+            <div className="flex flex-wrap items-center gap-4 mt-3">
+              <p className="text-gray-400">
+                Based on <strong className="text-indigo-400">{total_jobs_analyzed}</strong> recently scraped jobs.
+              </p>
+              {algoData.source_metrics && (
+                <div className="flex gap-3">
+                  <span className="bg-red-500/20 text-red-300 text-xs px-2 py-1 rounded-md border border-red-500/30">
+                    {algoData.source_metrics.youtube} YouTube Videos
+                  </span>
+                  <span className="bg-orange-500/20 text-orange-300 text-xs px-2 py-1 rounded-md border border-orange-500/30">
+                    {algoData.source_metrics.reddit} Reddit Threads
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
           <div className="text-sm text-gray-500 bg-[#2A2438] px-4 py-2 rounded-lg border border-[#ffffff10]">
             Last Updated: {new Date(generated_at).toLocaleString()}
           </div>
         </div>
 
-        {/* AI Mood Summary */}
-        <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/20 p-8 rounded-3xl border border-indigo-500/30 shadow-[0_0_30px_rgba(79,70,229,0.15)] relative overflow-hidden flex gap-4 items-start">
-          <AlertCircle className="w-10 h-10 text-indigo-400 flex-shrink-0" />
+        {/* Algorithmic Prediction Summary */}
+        <div className="bg-gradient-to-br from-emerald-900/30 to-teal-900/20 p-8 rounded-3xl border border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative overflow-hidden flex gap-4 items-start">
+          <AlertCircle className="w-10 h-10 text-emerald-400 flex-shrink-0" />
           <div>
-            <h2 className="text-xl font-bold text-indigo-300 mb-2">Market Mood</h2>
-            <p className="text-gray-200 text-lg leading-relaxed">{aiData.market_mood}</p>
+            <h2 className="text-xl font-bold text-emerald-300 mb-2">Algorithmic Market Predictions</h2>
+            <p className="text-gray-200 text-lg leading-relaxed">{algoData.market_mood}</p>
           </div>
         </div>
 
@@ -124,13 +136,13 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
               <MessageSquare className="w-6 h-6 text-amber-500" /> Hot Community Topics
             </h2>
             <div className="flex-1 w-full min-h-[300px]">
-              {(!aiData.trending_topics || aiData.trending_topics.length === 0) ? (
+              {(!algoData.trending_topics || algoData.trending_topics.length === 0) ? (
                  <div className="h-full flex items-center justify-center text-gray-500">No community topic data available yet.</div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={aiData.trending_topics}
+                      data={algoData.trending_topics}
                       dataKey="heat_score"
                       nameKey="topic"
                       cx="50%"
@@ -140,7 +152,7 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
                       paddingAngle={5}
                       label={({ name, percent }) => percent ? `${name} ${(percent * 100).toFixed(0)}%` : name}
                     >
-                      {aiData.trending_topics.map((entry: any, index: number) => (
+                      {algoData.trending_topics.map((entry: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>

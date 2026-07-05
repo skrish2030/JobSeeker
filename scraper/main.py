@@ -71,15 +71,25 @@ def run_scraper():
     jobs_inserted = 0
     errors_count = 0
         
-    for location in locations:
-        for kw in keywords:
+    import random
+    # To prevent IP bans from massive bursts, we shuffle and pick a random subset per cycle.
+    # The cron runs every 4 hours, so over a week it covers the entire matrix.
+    random.shuffle(locations)
+    random.shuffle(keywords)
+    
+    # Pick 2 random locations and 4 random keywords per run (8 iterations total instead of 484)
+    target_locations = locations[:2]
+    target_keywords = keywords[:4]
+        
+    for location in target_locations:
+        for kw in target_keywords:
             logger.info(f"Scraping '{kw}' in '{location}'...")
             try:
                 df = scrape_jobs(
-                    site_name=["indeed", "linkedin", "glassdoor"],
+                    site_name=["indeed", "linkedin", "glassdoor", "zip_recruiter", "google"],
                     search_term=kw,
                     location=location,
-                    results_wanted=500,
+                    results_wanted=100,
                     hours_old=72,
                     country_indeed="usa"
                 )

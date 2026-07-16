@@ -8,7 +8,12 @@ from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from supabase import create_client, Client
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 # Try importing the company scrapers from backend
 try:
@@ -32,9 +37,24 @@ def log_blocked_site(company_name, url, platform, error_msg):
     except Exception as e:
         print(f"    [!] Failed to write to local blocked log: {e}")
 
+def load_env_manually(filepath):
+    """Fallback manual parser for .env files when python-dotenv is not installed."""
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    os.environ[k.strip()] = v.strip().strip('"').strip("'")
+        except Exception as e:
+            print(f"    [!] Failed to read {filepath} manually: {e}")
+
 def get_supabase_client() -> Client:
-    load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"))
-    load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend-next", ".env.local"))
+    # Attempt manual parse fallback
+    load_env_manually(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"))
+    load_env_manually(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend-next", ".env.local"))
     
     url = os.environ.get("SUPABASE_URL")
     key = os.environ.get("SUPABASE_SERVICE_KEY")

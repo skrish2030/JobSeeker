@@ -5,19 +5,23 @@ import contextvars
 import hashlib
 import re
 import logging
-from pymongo import MongoClient
-import pymongo
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("database")
 logger.setLevel(logging.INFO)
 
 IS_LAMBDA = False
 
-# MongoDB Initialization
-MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
-client = MongoClient(MONGODB_URI)
-db = client.jobseeker
+try:
+    from pymongo import MongoClient
+    import pymongo
+    # MongoDB Initialization
+    MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
+    client = MongoClient(MONGODB_URI)
+    db = client.jobseeker
+except ImportError:
+    client = None
+    db = None
+    logger.info("pymongo package not found; MongoDB backend features disabled.")
 
 active_user_id_var = contextvars.ContextVar("active_user_id", default="global")
 active_profile_id_var = contextvars.ContextVar("active_profile_id", default="default")

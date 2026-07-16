@@ -150,7 +150,7 @@ def scrape_youtube_trends(query="tech jobs hiring trends"):
             match = re.search(r'var ytInitialData\s*=\s*({.*?});', res.text)
             if match:
                 data = json.loads(match.group(1))
-                contents = data.get("contents", {}).get("twoColumnSearchResultRenderer", {}).get("primaryContents", {}).get("sectionListRenderer", {}).get("contents", [])
+                contents = data.get("contents", {}).get("twoColumnSearchResultsRenderer", {}).get("primaryContents", {}).get("sectionListRenderer", {}).get("contents", [])
                 
                 video_items = []
                 for content in contents:

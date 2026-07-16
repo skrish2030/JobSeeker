@@ -161,7 +161,7 @@ def scrape_youtube(query="tech jobs hiring layoffs"):
                 data = json.loads(match.group(1))
                 
                 # Dig down into the YouTube search results render structure
-                contents = data.get("contents", {}).get("twoColumnSearchResultRenderer", {}).get("primaryContents", {}).get("sectionListRenderer", {}).get("contents", [])
+                contents = data.get("contents", {}).get("twoColumnSearchResultsRenderer", {}).get("primaryContents", {}).get("sectionListRenderer", {}).get("contents", [])
                 video_items = []
                 for content in contents:
                     items = content.get("itemSectionRenderer", {}).get("contents", [])

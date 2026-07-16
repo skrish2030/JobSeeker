@@ -192,4 +192,4 @@ def run_full_scrape():
     print("=" * 60)
 
 if __name__ == "__main__":
-    run_scrape()
+    run_full_scrape()

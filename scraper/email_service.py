@@ -26,8 +26,8 @@ def send_jobs_digest_email():
         logger.warning("SMTP_SENDER or SMTP_PASSWORD not set. Skipping email dispatch.")
         return
 
-    # Check which users have email notifications enabled and a valid email
-    users_res = supabase.table("user_settings").select("user_id, email, target_job_title, target_location").eq("email_notifications", True).execute()
+    # Check which users have email notifications enabled
+    users_res = supabase.table("user_settings").select("user_id, target_job_title, target_location").eq("email_notifications", True).execute()
     
     if not users_res.data:
         logger.info("No users have email notifications enabled.")
@@ -46,8 +46,18 @@ def send_jobs_digest_email():
     emails_sent = 0
 
     for user in users_res.data:
-        recipient = user.get("email")
+        user_id = user.get("user_id")
+        recipient = None
+        if user_id:
+            try:
+                auth_user_res = supabase.auth.admin.get_user_by_id(user_id)
+                if auth_user_res and auth_user_res.user:
+                    recipient = auth_user_res.user.email
+            except Exception as e:
+                logger.error(f"Failed to fetch email for user_id {user_id}: {e}")
+                
         if not recipient:
+            logger.warning(f"No valid email found for user ID: {user_id}")
             continue
 
         target_title = user.get("target_job_title", "")

@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import AnalyticsDashboard from './AnalyticsDashboard'
 
-export const revalidate = 60 // Revalidate every minute
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function AnalyticsPage() {
   const supabase = await createClient()

@@ -138,7 +138,7 @@ def analyze_current_demand(supabase: Client):
     
     try:
         # Fetch latest 200 jobs to analyze titles/companies
-        res = supabase.table("jobs").select("title, company, description").order("scraped_at", {"ascending": False}).limit(200).execute()
+        res = supabase.table("jobs").select("title, company, description").order("scraped_at", desc=True).limit(200).execute()
         jobs = res.data or []
         
         for job in jobs:

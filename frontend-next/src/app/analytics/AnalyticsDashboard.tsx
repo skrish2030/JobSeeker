@@ -1,13 +1,23 @@
 "use client"
 
-import React, { useMemo } from 'react'
-import { BarChart, Bar, LineChart, Line, Legend, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts'
-import { TrendingUp, Briefcase, Code, Building, MessageSquare, AlertCircle } from 'lucide-react'
+import React, { useMemo, useState } from 'react'
+import { BarChart, Bar, LineChart, Line, AreaChart, Area, Legend, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts'
+import { TrendingUp, Briefcase, Code, Building, MessageSquare, AlertCircle, Calendar } from 'lucide-react'
 
 const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#f59e0b']
 
-export default function AnalyticsDashboard({ insights, marketFeed }: { insights: any, marketFeed: any[] }) {
+export default function AnalyticsDashboard({ insights, marketFeed, scrapeTrend }: { insights: any, marketFeed: any[], scrapeTrend: any[] }) {
+  const [timeRange, setTimeRange] = useState<number>(30) // Default 30 days
   const { total_jobs_analyzed, ai_market_summary, trending_skills, trending_titles, top_companies, generated_at } = insights
+
+  const filteredTrend = useMemo(() => {
+    if (!scrapeTrend) return []
+    const sliced = scrapeTrend.slice(-timeRange)
+    return sliced.map(s => ({
+      ...s,
+      date: s.date.substring(5) // MM-DD for clean chart labels
+    }))
+  }, [scrapeTrend, timeRange])
 
   const futureKeys = useMemo(() => {
     let aiData: any = {}
@@ -77,6 +87,58 @@ export default function AnalyticsDashboard({ insights, marketFeed }: { insights:
           <div>
             <h2 className="text-xl font-bold text-emerald-300 mb-2">Algorithmic Market Predictions</h2>
             <p className="text-gray-200 text-lg leading-relaxed">{algoData.market_mood}</p>
+          </div>
+        </div>
+
+        {/* Daily Scrape Volume Trend (Full Width) */}
+        <div className="bg-[#1A1625] p-6 lg:p-8 rounded-3xl border border-[#ffffff15] shadow-lg flex flex-col h-[400px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Calendar className="w-6 h-6 text-indigo-500" /> Daily Jobs Scraped Volume
+            </h2>
+            {/* Time range buttons */}
+            <div className="flex gap-1.5 p-1 bg-[#120F1A] border border-[#ffffff10] rounded-xl w-fit">
+              <button
+                onClick={() => setTimeRange(7)}
+                className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all ${timeRange === 7 ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}
+              >
+                7 Days
+              </button>
+              <button
+                onClick={() => setTimeRange(30)}
+                className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all ${timeRange === 30 ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}
+              >
+                30 Days
+              </button>
+              <button
+                onClick={() => setTimeRange(90)}
+                className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all ${timeRange === 90 ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}
+              >
+                90 Days
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex-1 w-full min-h-[250px]">
+            {filteredTrend.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-gray-500">No scrape trend data available.</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={filteredTrend} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorScrape" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                  <XAxis dataKey="date" stroke="#6b7280" tick={{fill: '#e5e7eb', fontSize: 11}} />
+                  <YAxis stroke="#6b7280" tick={{fill: '#e5e7eb', fontSize: 11}} />
+                  <Tooltip contentStyle={{backgroundColor: '#1A1625', borderColor: '#ffffff20', borderRadius: '8px'}} />
+                  <Area type="monotone" dataKey="count" name="Jobs Scraped" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorScrape)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 

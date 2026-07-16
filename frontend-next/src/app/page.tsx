@@ -9,6 +9,7 @@ import JobDetail from '@/components/JobDetail';
 export default function Home() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [totalJobs, setTotalJobs] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [locationTerm, setLocationTerm] = useState('');
@@ -17,7 +18,17 @@ export default function Home() {
   useEffect(() => {
     fetchJobs();
     fetchSavedStatus();
+    fetchTotalJobsCount();
   }, []);
+
+  async function fetchTotalJobsCount() {
+    const { count, error } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true });
+    if (!error && count !== null) {
+      setTotalJobs(count);
+    }
+  }
 
   async function fetchSavedStatus() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -142,9 +153,16 @@ export default function Home() {
             <h2 className="text-2xl font-bold text-indigo-400">
               {searchTerm || locationTerm ? 'Matching Jobs' : 'Recent Jobs'}
             </h2>
-            <span className="text-sm font-medium text-gray-500 bg-[#ffffff05] px-3 py-1 rounded-lg border border-[#ffffff10]">
-              Showing {jobs.length} results
-            </span>
+            <div className="flex gap-3 items-center">
+              <span className="text-sm font-medium text-gray-500 bg-[#ffffff05] px-3 py-1 rounded-lg border border-[#ffffff10]">
+                Showing {jobs.length} results
+              </span>
+              {totalJobs !== null && (
+                <span className="text-sm font-bold text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-lg border border-indigo-500/20 shadow-[0_0_15px_rgba(79,70,229,0.15)]">
+                  Total Database Count: {totalJobs}
+                </span>
+              )}
+            </div>
           </div>
           
           {loading ? (

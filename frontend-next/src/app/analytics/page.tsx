@@ -20,6 +20,39 @@ export default async function AnalyticsPage() {
     .order('created_at', { ascending: false })
     .limit(10)
 
+  // Fetch daily scrape trends (past 90 days)
+  const ninetyDaysAgo = new Date()
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+  
+  const { data: scrapeTrendRaw } = await supabase
+    .from('jobs')
+    .select('scraped_at')
+    .gte('scraped_at', ninetyDaysAgo.toISOString())
+
+  const counts: { [date: string]: number } = {}
+  for (let i = 89; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const dateStr = d.toISOString().split('T')[0]
+    counts[dateStr] = 0
+  }
+
+  if (scrapeTrendRaw) {
+    scrapeTrendRaw.forEach((job: any) => {
+      if (job.scraped_at) {
+        const dateStr = job.scraped_at.split('T')[0]
+        if (counts[dateStr] !== undefined) {
+          counts[dateStr]++
+        }
+      }
+    })
+  }
+
+  const scrapeTrend = Object.keys(counts).map(date => ({
+    date: date, // Keep full YYYY-MM-DD to filter/sort correctly on client
+    count: counts[date]
+  }))
+
   const formatNumber = (num: number) => new Intl.NumberFormat('en-US').format(num)
 
   if (!insights) {
@@ -31,5 +64,5 @@ export default async function AnalyticsPage() {
     )
   }
 
-  return <AnalyticsDashboard insights={insights} marketFeed={marketFeed || []} />
+  return <AnalyticsDashboard insights={insights} marketFeed={marketFeed || []} scrapeTrend={scrapeTrend} />
 }

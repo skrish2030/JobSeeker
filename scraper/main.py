@@ -92,14 +92,15 @@ def run_scraper():
     import random
     import time
     
-    # Ultra-stealthy mode: Pick 1 random site, 1 random location, and 2 random keywords per run
-    available_sites = ["indeed", "linkedin", "glassdoor", "zip_recruiter", "google"]
+    # Focus only on highly reliable working providers (LinkedIn & Indeed) to avoid wasted runs
+    available_sites = ["linkedin", "indeed"]
     target_site = random.choice(available_sites)
     
+    # Expand search targets slightly (2 locations x 3 keywords = 6 queries) to guarantee job ingestion
     random.shuffle(locations)
     random.shuffle(keywords)
-    target_locations = locations[:1]
-    target_keywords = keywords[:2]
+    target_locations = locations[:2]
+    target_keywords = keywords[:3]
         
     for location in target_locations:
         for kw in target_keywords:

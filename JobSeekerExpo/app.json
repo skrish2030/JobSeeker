@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "JobSeeker",
+    "slug": "jobseeker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "../frontend/icons/jobseeker_pwa_icon_1781462391122.png",
+    "splash": {
+      "image": "../frontend/jobseeker_splash_1781312530974.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "../frontend/icons/jobseeker_pwa_icon_1781462391122.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "extra": {
+      "backendUrl": "http://YOUR_PUBLIC_URL"
+    }
+  }
+}

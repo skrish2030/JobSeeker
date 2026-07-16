@@ -7,6 +7,12 @@ from jobspy import scrape_jobs
 import json
 import pandas as pd
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path="../frontend-next/.env.local")
+except ImportError:
+    pass
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("gh_scraper")
 

@@ -493,6 +493,9 @@ def delete_profile(profile_id, user_id):
     db.profiles.delete_one({"profile_id": f"{user_id}_{profile_id}"})
 
 def log_portal_error(company_name, portal_url, error_code, error_message):
+    logger.warning(f"[Portal Error] Company: {company_name} | URL: {portal_url} | Code: {error_code} | Msg: {error_message}")
+    if db is None:
+        return
     user_id = active_user_id_var.get()
     profile_id = active_profile_id_var.get()
     key = "global" if user_id == "global" else f"{user_id}_{profile_id}"

@@ -20,36 +20,39 @@ export default async function AnalyticsPage() {
     .order('created_at', { ascending: false })
     .limit(10)
 
-  // Fetch daily scrape trends (past 90 days)
-  const ninetyDaysAgo = new Date()
-  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
-  
-  const { data: scrapeTrendRaw } = await supabase
-    .from('jobs')
-    .select('scraped_at')
-    .gte('scraped_at', ninetyDaysAgo.toISOString())
-
+  // Fetch daily scrape trends (past 90 days) in parallel to bypass 1000-row REST API limit
   const counts: { [date: string]: number } = {}
+  const promises = []
+  
   for (let i = 89; i >= 0; i--) {
     const d = new Date()
     d.setDate(d.getDate() - i)
     const dateStr = d.toISOString().split('T')[0]
     counts[dateStr] = 0
+    
+    // Query start and end bounds for the day
+    const dayStart = `${dateStr}T00:00:00.000Z`
+    const dayEnd = `${dateStr}T23:59:59.999Z`
+    
+    // We execute exact counts using head: true which fetches 0 rows, keepingPgBouncer requests fast
+    const p = supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .gte('scraped_at', dayStart)
+      .lte('scraped_at', dayEnd)
+      .then(({ count }) => {
+        if (count !== null) {
+          counts[dateStr] = count
+        }
+      })
+    promises.push(p)
   }
 
-  if (scrapeTrendRaw) {
-    scrapeTrendRaw.forEach((job: any) => {
-      if (job.scraped_at) {
-        const dateStr = job.scraped_at.split('T')[0]
-        if (counts[dateStr] !== undefined) {
-          counts[dateStr]++
-        }
-      }
-    })
-  }
+  // Wait for all counts to resolve
+  await Promise.all(promises)
 
   const scrapeTrend = Object.keys(counts).map(date => ({
-    date: date, // Keep full YYYY-MM-DD to filter/sort correctly on client
+    date: date,
     count: counts[date]
   }))
 

@@ -350,6 +350,184 @@ def compile_forecast():
         skills_tag = f" - *Skills: {skills_str}*" if skills_str else ""
         jobs_markdown += f"{idx}. **{j['title']}** at **{j['company']}** ({j['salary_str']}){skills_tag}\n"
 
+    # 8. Complete Career Intelligence Datasets
+    career_insights_json = [
+        {
+            "slug": "ai-engineer",
+            "name": "AI Engineer",
+            "growth": 5,
+            "ai_risk": "Low",
+            "salary": "$$$$$",
+            "demand": "Very High",
+            "future_score": {"overall": 97.5, "demand": 98, "salary": 93, "ai_safety": 99},
+            "skills_trending": [
+                {"skill": "Python", "growth": 92, "score": 98, "trend": "Growing since 2018"},
+                {"skill": "Triton / CUDA", "growth": 85, "score": 95, "trend": "Growing since 2024"},
+                {"skill": "PyTorch", "growth": 88, "score": 93, "trend": "Growing since 2019"}
+            ],
+            "roadmap": ["Python", "Machine Learning", "Deep Learning", "LLMs", "RAG", "AI Agents", "Deployment", "Cloud Compute"],
+            "salary_trend": {"junior": "$95k", "mid": "$145k", "senior": "$220k", "principal": "$320k"},
+            "certificates": [
+                {"certificate": "Nvidia CUDA Programming Certificate", "value": "Very High", "cost": "Paid Exam", "recognition": "Very High"},
+                {"certificate": "AWS Certified Machine Learning - Specialty", "value": "High", "cost": "Paid Exam", "recognition": "High"},
+                {"certificate": "Google Cloud Professional ML Engineer", "value": "High", "cost": "Paid Exam", "recognition": "High"}
+            ],
+            "free_learning": [
+                {"skill": "Python & CS", "resources": ["Harvard CS50", "freeCodeCamp"]},
+                {"skill": "Machine Learning", "resources": ["Andrew Ng's Machine Learning Specialization (Audit)", "Fast.ai"]},
+                {"skill": "LLMs & RAG", "resources": ["LangChain Academy", "Hugging Face Deep RL Course"]}
+            ],
+            "bootcamps": [
+                {"name": "Springboard AI & ML Career Track", "cost": "$10k", "time": "6 Months", "roi": "High"},
+                {"name": "TripleTen Data Science & AI", "cost": "$9.7k", "time": "7 Months", "roi": "Very High"}
+            ]
+        },
+        {
+            "slug": "cybersecurity",
+            "name": "Cybersecurity",
+            "growth": 5,
+            "ai_risk": "Low",
+            "salary": "$$$$",
+            "demand": "Very High",
+            "future_score": {"overall": 96.0, "demand": 97, "salary": 91, "ai_safety": 100},
+            "skills_trending": [
+                {"skill": "Network Security", "growth": 89, "score": 94, "trend": "Growing since 2015"},
+                {"skill": "Penetration Testing", "growth": 82, "score": 90, "trend": "Growing since 2017"},
+                {"skill": "OSINT & Cryptography", "growth": 78, "score": 87, "trend": "Growing since 2020"}
+            ],
+            "roadmap": ["Networking Basics", "Linux Systems", "Security Foundations", "Penetration Testing", "Active Directory", "Incident Response", "OSCP Prep"],
+            "salary_trend": {"junior": "$85k", "mid": "$130k", "senior": "$190k", "principal": "$280k"},
+            "certificates": [
+                {"certificate": "Offensive Security Certified Professional (OSCP)", "value": "Gold Standard", "cost": "Paid Course & Exam", "recognition": "Very High"},
+                {"certificate": "CompTIA Security+", "value": "Entry-Level Standard", "cost": "Paid Exam", "recognition": "High"},
+                {"certificate": "Certified Information Systems Security Professional (CISSP)", "value": "Management Standard", "cost": "Paid Exam", "recognition": "Very High"}
+            ],
+            "free_learning": [
+                {"skill": "Security Labs", "resources": ["TryHackMe (Free Tier)", "Hack The Box (Free Labs)"]},
+                {"skill": "Networking & Systems", "resources": ["Professor Messer Network+", "Harvard CS50"]}
+            ],
+            "bootcamps": [
+                {"name": "Evolve Security Academy", "cost": "$12.5k", "time": "5 Months", "roi": "High"},
+                {"name": "Flatiron School Cyber Security", "cost": "$15k", "time": "4 Months", "roi": "Medium"}
+            ]
+        },
+        {
+            "slug": "cloud-engineer",
+            "name": "Cloud Engineer",
+            "growth": 4,
+            "ai_risk": "Low",
+            "salary": "$$$$",
+            "demand": "High",
+            "future_score": {"overall": 92.5, "demand": 91, "salary": 89, "ai_safety": 97},
+            "skills_trending": [
+                {"skill": "Terraform (IaC)", "growth": 88, "score": 94, "trend": "Growing since 2019"},
+                {"skill": "Kubernetes", "growth": 91, "score": 96, "trend": "Growing since 2017"},
+                {"skill": "AWS Cloud Foundations", "growth": 85, "score": 91, "trend": "Growing since 2014"}
+            ],
+            "roadmap": ["Linux Systems", "Networking", "AWS / Azure Basics", "Infrastructure as Code", "Docker Containers", "Kubernetes Orchestration", "CI/CD Pipelines"],
+            "salary_trend": {"junior": "$80k", "mid": "$125k", "senior": "$180k", "principal": "$270k"},
+            "certificates": [
+                {"certificate": "AWS Solutions Architect - Associate", "value": "High", "cost": "Paid Exam", "recognition": "Very High"},
+                {"certificate": "Certified Kubernetes Administrator (CKA)", "value": "Very High", "cost": "Paid Exam", "recognition": "Very High"},
+                {"certificate": "HashiCorp Certified Terraform Associate", "value": "Medium-High", "cost": "Paid Exam", "recognition": "High"}
+            ],
+            "free_learning": [
+                {"skill": "Cloud Providers", "resources": ["AWS Skill Builder (Free courses)", "Microsoft Learn Fundamentals"]},
+                {"skill": "IaC & Kubernetes", "resources": ["Terraform Up & Running (Free Guides)", "KubeAcademy by VMware"]}
+            ],
+            "bootcamps": [
+                {"name": "Clarusway Cloud & DevOps", "cost": "$9.8k", "time": "6 Months", "roi": "High"},
+                {"name": "Coding Temple DevOps Track", "cost": "$12.5k", "time": "5 Months", "roi": "Medium"}
+            ]
+        },
+        {
+            "slug": "data-scientist",
+            "name": "Data Scientist",
+            "growth": 5,
+            "ai_risk": "Low",
+            "salary": "$$$$",
+            "demand": "High",
+            "future_score": {"overall": 93.0, "demand": 92, "salary": 90, "ai_safety": 95},
+            "skills_trending": [
+                {"skill": "Python / Pandas", "growth": 89, "score": 93, "trend": "Growing since 2015"},
+                {"skill": "SQL Querying", "growth": 92, "score": 95, "trend": "Growing since 2010"},
+                {"skill": "Machine Learning Models", "growth": 85, "score": 90, "trend": "Growing since 2016"}
+            ],
+            "roadmap": ["Python", "SQL", "Statistics", "Data Cleaning", "Data Visualization", "Machine Learning", "Model Deployment"],
+            "salary_trend": {"junior": "$85k", "mid": "$135k", "senior": "$195k", "principal": "$290k"},
+            "certificates": [
+                {"certificate": "Google Data Analytics Professional Certificate", "value": "High", "cost": "Free/Audit", "recognition": "High"},
+                {"certificate": "IBM Data Science Professional Certificate", "value": "Medium", "cost": "Free/Audit", "recognition": "Medium"},
+                {"certificate": "Databricks Certified Data Scientist", "value": "High", "cost": "Paid Exam", "recognition": "High"}
+            ],
+            "free_learning": [
+                {"skill": "Statistics", "resources": ["Khan Academy AP Statistics", "StatQuest YouTube Series"]},
+                {"skill": "Data Manipulation", "resources": ["Kaggle Learn Tutorials", "freeCodeCamp Python Data Science"]}
+            ],
+            "bootcamps": [
+                {"name": "DataCamp Career Tracks", "cost": "Free/Subscription", "time": "Self-paced", "roi": "Very High"},
+                {"name": "General Assembly Data Science", "cost": "$16.4k", "time": "3 Months", "roi": "Medium"}
+            ]
+        },
+        {
+            "slug": "software-engineer",
+            "name": "Software Engineer",
+            "growth": 4,
+            "ai_risk": "Medium",
+            "salary": "$$$$",
+            "demand": "High",
+            "future_score": {"overall": 90.0, "demand": 88, "salary": 91, "ai_safety": 91},
+            "skills_trending": [
+                {"skill": "TypeScript", "growth": 90, "score": 95, "trend": "Growing since 2018"},
+                {"skill": "System Design", "growth": 85, "score": 92, "trend": "Growing since 2012"},
+                {"skill": "React / Frontend", "growth": 82, "score": 88, "trend": "Growing since 2015"}
+            ],
+            "roadmap": ["HTML/CSS/JS", "TypeScript", "Frontend Framework (React)", "SQL Databases", "Data Structures", "System Design", "Docker Foundations"],
+            "salary_trend": {"junior": "$80k", "mid": "$130k", "senior": "$190k", "principal": "$280k"},
+            "certificates": [
+                {"certificate": "Meta Front-End Developer Professional", "value": "Medium-High", "cost": "Free/Audit", "recognition": "High"},
+                {"certificate": "AWS Certified Developer - Associate", "value": "High", "cost": "Paid Exam", "recognition": "Very High"}
+            ],
+            "free_learning": [
+                {"skill": "JavaScript / React", "resources": ["Scrimba (Free courses)", "The Odin Project (Full Stack JS)"]},
+                {"skill": "Algorithms & Systems", "resources": ["NeetCode.io (Free DSA roadmap)", "System Design Primer (GitHub)"]}
+            ],
+            "bootcamps": [
+                {"name": "App Academy Open", "cost": "Free", "time": "Self-paced", "roi": "Maximum (Free)"},
+                {"name": "Codesmith Software Engineering", "cost": "$20k", "time": "3 Months", "roi": "High"}
+            ]
+        },
+        {
+            "slug": "data-engineer",
+            "name": "Data Engineer",
+            "growth": 5,
+            "ai_risk": "Low",
+            "salary": "$$$$",
+            "demand": "High",
+            "future_score": {"overall": 94.5, "demand": 94, "salary": 91, "ai_safety": 98},
+            "skills_trending": [
+                {"skill": "Apache Spark (Big Data)", "growth": 84, "score": 89, "trend": "Growing since 2015"},
+                {"skill": "SQL Data Modeling", "growth": 91, "score": 95, "trend": "Growing since 2008"},
+                {"skill": "dbt (Data Build Tool)", "growth": 89, "score": 93, "trend": "Growing since 2021"}
+            ],
+            "roadmap": ["Python Coding", "Advanced SQL", "Data Modeling", "ETL/ELT Pipelines", "dbt Fundamentals", "Big Data (Spark)", "Cloud Data Warehouses"],
+            "salary_trend": {"junior": "$85k", "mid": "$135k", "senior": "$200k", "principal": "$300k"},
+            "certificates": [
+                {"certificate": "Google Cloud Professional Data Engineer", "value": "High", "cost": "Paid Exam", "recognition": "Very High"},
+                {"certificate": "Snowflake SnowPro Core Certification", "value": "High", "cost": "Paid Exam", "recognition": "High"},
+                {"certificate": "Databricks Certified Data Engineer Professional", "value": "High", "cost": "Paid Exam", "recognition": "High"}
+            ],
+            "free_learning": [
+                {"skill": "Data Pipelines", "resources": ["dbt Developer Tutorial (Free)", "Data Engineering Zoomcamp (Free)"]},
+                {"skill": "Big Data Basics", "resources": ["freeCodeCamp Apache Spark", "SQLZoo Advanced SQL Labs"]}
+            ],
+            "bootcamps": [
+                {"name": "DataTalks.Club Engineering Camp", "cost": "Free", "time": "3 Months", "roi": "Maximum (Free)"},
+                {"name": "Springboard Data Engineering Track", "cost": "$9.5k", "time": "6 Months", "roi": "High"}
+            ]
+        }
+    ]
+
     # Create the expert-level Tech Recruiter analysis report
     recruiter_analysis = (
         "MARKET ANALYSIS FROM TOP-TIER RECRUITMENT PERSPECTIVE:\n\n"
@@ -365,7 +543,8 @@ def compile_forecast():
         "top_certificates": top_certificates_json,
         "top_learning_skills": top_learning_json,
         "future_trends": future_trends_json,
-        "source_metrics": {"youtube": yt_video_count if yt_video_count > 0 else 10, "reddit": 15}
+        "source_metrics": {"youtube": yt_video_count if yt_video_count > 0 else 10, "reddit": 15},
+        "career_insights": career_insights_json
     }
 
     # 8. Write to Supabase table

@@ -2,12 +2,13 @@
 
 import React, { useMemo, useState } from 'react'
 import { BarChart, Bar, LineChart, Line, AreaChart, Area, Legend, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts'
-import { TrendingUp, Briefcase, Code, Building, MessageSquare, AlertCircle, Calendar } from 'lucide-react'
+import { TrendingUp, Briefcase, Code, Building, MessageSquare, AlertCircle, Calendar, Shield, Cpu, Cloud, Database, FileCode, CheckCircle2, DollarSign, Award, GraduationCap, ArrowRight, Activity } from 'lucide-react'
 
 const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#f59e0b']
 
 export default function AnalyticsDashboard({ insights, marketFeed, scrapeTrend }: { insights: any, marketFeed: any[], scrapeTrend: any[] }) {
   const [timeRange, setTimeRange] = useState<number>(30) // Default 30 days
+  const [selectedCareerSlug, setSelectedCareerSlug] = useState<string | null>(null)
   const { total_jobs_analyzed, ai_market_summary, trending_skills, trending_titles, top_companies, generated_at } = insights
 
   const filteredTrend = useMemo(() => {
@@ -31,7 +32,7 @@ export default function AnalyticsDashboard({ insights, marketFeed, scrapeTrend }
   }, [ai_market_summary])
 
   // Parse Algorithmic JSON
-  let algoData: any = { market_mood: "Analyzing market mood...", trending_topics: [], source_metrics: null }
+  let algoData: any = { market_mood: "Analyzing market mood...", trending_topics: [], source_metrics: null, career_insights: [] }
   try {
     if (ai_market_summary && ai_market_summary.includes('{')) {
       algoData = JSON.parse(ai_market_summary)
@@ -40,6 +41,26 @@ export default function AnalyticsDashboard({ insights, marketFeed, scrapeTrend }
     }
   } catch (e) {
     console.error("Failed to parse Algorithmic JSON", e)
+  }
+
+  const activeCareer = useMemo(() => {
+    if (!algoData.career_insights || algoData.career_insights.length === 0) return null
+    if (selectedCareerSlug) {
+      return algoData.career_insights.find((c: any) => c.slug === selectedCareerSlug) || algoData.career_insights[0]
+    }
+    return algoData.career_insights[0]
+  }, [algoData.career_insights, selectedCareerSlug])
+
+  const getCareerIcon = (slug: string) => {
+    switch (slug) {
+      case 'ai-engineer': return <Cpu className="w-5 h-5 text-emerald-400" />
+      case 'cybersecurity': return <Shield className="w-5 h-5 text-red-400" />
+      case 'cloud-engineer': return <Cloud className="w-5 h-5 text-sky-400" />
+      case 'data-scientist': return <Activity className="w-5 h-5 text-purple-400" />
+      case 'software-engineer': return <FileCode className="w-5 h-5 text-blue-400" />
+      case 'data-engineer': return <Database className="w-5 h-5 text-pink-400" />
+      default: return <Briefcase className="w-5 h-5 text-indigo-400" />
+    }
   }
 
   // Smart dynamic YAxis width calculator based on the longest string in the data
@@ -89,6 +110,213 @@ export default function AnalyticsDashboard({ insights, marketFeed, scrapeTrend }
             <p className="text-gray-200 text-lg leading-relaxed">{algoData.market_mood}</p>
           </div>
         </div>
+
+        {/* Career Intelligence comparison board */}
+        {algoData.career_insights && algoData.career_insights.length > 0 && (
+          <div className="bg-[#1A1625] p-6 lg:p-8 rounded-3xl border border-[#ffffff15] shadow-lg flex flex-col gap-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <GraduationCap className="w-7 h-7 text-indigo-500" /> Career Intelligence Hub (2030 predictions)
+              </h2>
+              <p className="text-gray-400 mt-2 text-sm">Select a tech career to view its required skills roadmap, target certificates, free courses, and salary curves.</p>
+            </div>
+            
+            <div className="overflow-x-auto rounded-2xl border border-[#ffffff10] bg-[#120F1A]">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#ffffff10] text-gray-400 text-xs font-semibold uppercase tracking-wider bg-[#1c1829]">
+                    <th className="py-4 px-6">Career Profile</th>
+                    <th className="py-4 px-6">5-Yr Growth</th>
+                    <th className="py-4 px-6">AI Risk</th>
+                    <th className="py-4 px-6">Starting Pay</th>
+                    <th className="py-4 px-6">Overall Future Rating</th>
+                    <th className="py-4 px-6">Global Demand</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#ffffff08] text-sm">
+                  {algoData.career_insights.map((career: any) => {
+                    const isSelected = activeCareer && activeCareer.slug === career.slug
+                    return (
+                      <tr 
+                        key={career.slug} 
+                        onClick={() => setSelectedCareerSlug(career.slug)}
+                        className={`cursor-pointer transition-all hover:bg-[#ffffff05] ${isSelected ? 'bg-indigo-600/10 border-l-4 border-indigo-500' : ''}`}
+                      >
+                        <td className="py-4 px-6 font-semibold text-white flex items-center gap-3">
+                          {getCareerIcon(career.slug)}
+                          {career.name}
+                        </td>
+                        <td className="py-4 px-6 text-yellow-500 text-base font-bold">
+                          {"★".repeat(career.growth)}
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${career.ai_risk === 'Low' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>
+                            {career.ai_risk}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-emerald-400 font-mono font-bold">{career.salary}</td>
+                        <td className="py-4 px-6 text-indigo-400 font-bold">{career.future_score.overall}/100</td>
+                        <td className="py-4 px-6 text-gray-300 font-semibold">{career.demand}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Career details deep-dive drawer */}
+            {activeCareer && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 border-t border-[#ffffff10] pt-8 mt-4">
+                
+                {/* Left side: Future score stats and learning roadmap */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="flex items-center gap-3">
+                    {getCareerIcon(activeCareer.slug)}
+                    <h3 className="text-xl font-bold text-white">{activeCareer.name} Intelligence Breakdown</h3>
+                  </div>
+
+                  {/* Future score radial representation */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="bg-[#120F1A] p-4 rounded-2xl border border-[#ffffff08] flex flex-col items-center">
+                      <span className="text-xs text-gray-400 mb-1">Demand</span>
+                      <strong className="text-xl font-bold text-sky-400">{activeCareer.future_score.demand}</strong>
+                    </div>
+                    <div className="bg-[#120F1A] p-4 rounded-2xl border border-[#ffffff08] flex flex-col items-center">
+                      <span className="text-xs text-gray-400 mb-1">Salary Grade</span>
+                      <strong className="text-xl font-bold text-emerald-400">{activeCareer.future_score.salary}</strong>
+                    </div>
+                    <div className="bg-[#120F1A] p-4 rounded-2xl border border-[#ffffff08] flex flex-col items-center">
+                      <span className="text-xs text-gray-400 mb-1">AI Safety</span>
+                      <strong className="text-xl font-bold text-amber-400">{activeCareer.future_score.ai_safety}</strong>
+                    </div>
+                    <div className="bg-[#120F1A] p-4 rounded-2xl border border-[#ffffff08] flex flex-col items-center">
+                      <span className="text-xs text-gray-400 mb-1">Overall Future</span>
+                      <strong className="text-xl font-bold text-indigo-400">{activeCareer.future_score.overall}</strong>
+                    </div>
+                  </div>
+
+                  {/* Skills roadmap SVG Flowchart layout */}
+                  <div className="bg-[#120F1A] p-6 rounded-3xl border border-[#ffffff08]">
+                    <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+                      <Code className="w-4 h-4 text-indigo-400" /> Step-by-Step Learning Roadmap
+                    </h4>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {activeCareer.roadmap.map((step: string, idx: number) => {
+                        const isLast = idx === activeCareer.roadmap.length - 1
+                        return (
+                          <React.Fragment key={step}>
+                            <div className="bg-[#1c1829] px-4 py-2.5 rounded-xl border border-[#ffffff10] text-sm text-gray-200 font-medium">
+                              {step}
+                            </div>
+                            {!isLast && <ArrowRight className="w-4 h-4 text-indigo-500/50 flex-shrink-0" />}
+                          </React.Fragment>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Best Free Learning resources */}
+                  <div className="bg-[#120F1A] p-6 rounded-3xl border border-[#ffffff08]">
+                    <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 text-emerald-400" /> Top Free Learning Resources
+                    </h4>
+                    <div className="space-y-4">
+                      {activeCareer.free_learning.map((resource: any) => (
+                        <div key={resource.skill} className="flex justify-between items-start gap-4 pb-3 border-b border-[#ffffff05] last:border-0 last:pb-0">
+                          <div>
+                            <span className="text-sm font-semibold text-white">{resource.skill}</span>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {resource.resources.map((res: string) => (
+                                <span key={res} className="bg-emerald-500/10 text-emerald-300 text-xs px-2 py-0.5 rounded border border-emerald-500/20 font-medium">
+                                  {res}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right side: Salary Progression Chart and Certs/Bootcamp Rankings */}
+                <div className="lg:col-span-5 space-y-6">
+                  {/* Salary progression bar chart */}
+                  <div className="bg-[#120F1A] p-6 rounded-3xl border border-[#ffffff08] h-[250px] flex flex-col">
+                    <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-emerald-400" /> Salary Growth Progression (Annual)
+                    </h4>
+                    <div className="flex-1 w-full min-h-[150px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={[
+                          { stage: 'Junior', salary: parseInt(activeCareer.salary_trend.junior.replace('$', '').replace('k', '')) * 1000 },
+                          { stage: 'Mid', salary: parseInt(activeCareer.salary_trend.mid.replace('$', '').replace('k', '')) * 1000 },
+                          { stage: 'Senior', salary: parseInt(activeCareer.salary_trend.senior.replace('$', '').replace('k', '')) * 1000 },
+                          { stage: 'Principal', salary: parseInt(activeCareer.salary_trend.principal.replace('$', '').replace('k', '')) * 1000 }
+                        ]}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                          <XAxis dataKey="stage" stroke="#6b7280" tick={{fill: '#e5e7eb', fontSize: 11}} />
+                          <YAxis stroke="#6b7280" tickFormatter={(v) => `$${v/1000}k`} tick={{fill: '#e5e7eb', fontSize: 11}} />
+                          <Tooltip formatter={(value: any) => [`$${value?.toLocaleString()}`, 'Annual Salary']} contentStyle={{backgroundColor: '#1c1829', borderColor: '#ffffff10', borderRadius: '8px'}} />
+                          <Bar dataKey="salary" fill="#10b981" radius={[4, 4, 0, 0]} barSize={36} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Certificates rankings table */}
+                  <div className="bg-[#120F1A] p-6 rounded-3xl border border-[#ffffff08]">
+                    <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+                      <Award className="w-4 h-4 text-yellow-400" /> Curated Certificate Recommendations
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b border-[#ffffff10] text-gray-400 font-semibold uppercase tracking-wider bg-[#1c1829]">
+                            <th className="py-2 px-3">Certificate</th>
+                            <th className="py-2 px-3">Value</th>
+                            <th className="py-2 px-3">Cost</th>
+                            <th className="py-2 px-3">Recognition</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#ffffff05] text-gray-300">
+                          {activeCareer.certificates.map((cert: any) => (
+                            <tr key={cert.certificate} className="hover:bg-[#ffffff02]">
+                              <td className="py-2.5 px-3 font-medium text-white">{cert.certificate}</td>
+                              <td className="py-2.5 px-3 text-yellow-500 font-bold">{cert.value}</td>
+                              <td className="py-2.5 px-3 text-gray-400">{cert.cost}</td>
+                              <td className="py-2.5 px-3 text-emerald-400 font-semibold">{cert.recognition}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Bootcamps metrics */}
+                  <div className="bg-[#120F1A] p-6 rounded-3xl border border-[#ffffff08]">
+                    <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 text-sky-400" /> Ranked Professional Bootcamps
+                    </h4>
+                    <div className="space-y-4">
+                      {activeCareer.bootcamps.map((camp: any) => (
+                        <div key={camp.name} className="flex justify-between items-center gap-4 pb-3 border-b border-[#ffffff05] last:border-0 last:pb-0">
+                          <div>
+                            <span className="text-sm font-semibold text-white">{camp.name}</span>
+                            <div className="text-xs text-gray-400 mt-0.5">Duration: {camp.time} | Cost: {camp.cost}</div>
+                          </div>
+                          <span className="bg-sky-500/10 text-sky-300 text-xs px-2 py-1 rounded border border-sky-500/20 font-bold">
+                            ROI: {camp.roi}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Daily Scrape Volume Trend (Full Width) */}
         <div className="bg-[#1A1625] p-6 lg:p-8 rounded-3xl border border-[#ffffff15] shadow-lg flex flex-col h-[400px]">

@@ -93,15 +93,9 @@ def run_full_scrape():
     total_companies = len(companies)
     print(f"[+] Found {total_companies} companies to scrape.")
     
-    # 2. Fetch search keywords from settings
-    search_terms = "Software Engineer, Data Engineer, Site Reliability Engineer"
-    try:
-        settings_res = supabase.table("settings").select("search_terms").eq("id", "global").execute()
-        if settings_res.data:
-            search_terms = settings_res.data[0].get("search_terms") or search_terms
-    except Exception:
-        pass
-    print(f"[+] Filtering job title keywords: '{search_terms}'")
+    # 2. Skip title filtering to retrieve ALL job postings from corporate portals
+    search_terms = ""
+    print("[+] Title filtering disabled: Scraping ALL open roles.")
     print("-" * 60)
 
     success_count = 0

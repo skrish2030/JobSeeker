@@ -5,6 +5,7 @@ import time
 import requests
 import json
 import logging
+import urllib.parse
 from bs4 import BeautifulSoup
 from datetime import datetime
 
@@ -130,32 +131,58 @@ def scrape_hacker_news():
         logger.error(f"  [-] HN Scraper error: {e}")
     return topic_counts
 
-def parse_salary_value(salary_str):
-    if not salary_str:
-        return 0
-    s_lower = salary_str.lower()
-    if any(x in s_lower for x in ["not disclosed", "unknown", "none"]):
-        return 0
-    # Strip commas and spaces
-    clean = re.sub(r'[^\d\.\-kK/hr]', '', s_lower)
-    # Check for K
-    if 'k' in clean:
-        nums = re.findall(r'\d+', clean)
-        if nums:
-            # Take max in range
-            return max(int(n) for n in nums) * 1000
-    # Check for direct numeric range
-    nums = re.findall(r'\d+', clean)
-    if nums:
-        max_num = max(int(n) for n in nums)
-        if max_num > 1000:
-            return max_num
-        # Hourly conversion
-        if max_num < 300 and 'hr' in s_lower:
-            return max_num * 2000
-    return 0
+# 3. Scrape YouTube Search trends directly
+def scrape_youtube_trends(query="tech jobs hiring trends"):
+    logger.info(f"[*] Scraping YouTube search trends for: '{query}'...")
+    encoded_query = urllib.parse.quote(query)
+    url = f"https://www.youtube.com/results?search_query={encoded_query}"
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9"
+    }
+    
+    topic_counts = {}
+    video_count = 0
+    try:
+        res = requests.get(url, headers=headers, timeout=10)
+        if res.status_code == 200:
+            match = re.search(r'var ytInitialData\s*=\s*({.*?});', res.text)
+            if match:
+                data = json.loads(match.group(1))
+                contents = data.get("contents", {}).get("twoColumnSearchResultRenderer", {}).get("primaryContents", {}).get("sectionListRenderer", {}).get("contents", [])
+                
+                video_items = []
+                for content in contents:
+                    items = content.get("itemSectionRenderer", {}).get("contents", [])
+                    for item in items:
+                        if "videoRenderer" in item:
+                            video_items.append(item["videoRenderer"])
+                            
+                video_count = len(video_items)
+                logger.info(f"  [+] Extracted {video_count} trending video templates from YouTube search.")
+                
+                for video in video_items[:15]:
+                    title = video.get("title", {}).get("runs", [{}])[0].get("text", "")
+                    desc_runs = video.get("detailedMetadataSnippets", [{}])[0].get("snippetText", {}).get("runs", [])
+                    desc = "".join(r.get("text", "") for r in desc_runs)
+                    
+                    full_text = f"{title} {desc}".lower()
+                    for skill in ELITE_SKILLS:
+                        if skill.lower() in full_text:
+                            topic_counts[skill] = topic_counts.get(skill, 0) + 8
+                    for skill in COMMON_SKILLS:
+                        if skill.lower() in full_text:
+                            topic_counts[skill] = topic_counts.get(skill, 0) + 4
+            else:
+                logger.warning("  [-] Failed to parse ytInitialData from YouTube page.")
+        else:
+            logger.error(f"  [-] YouTube HTTP {res.status_code}")
+    except Exception as e:
+        logger.error(f"  [-] YouTube Scraper error: {e}")
+    return topic_counts, video_count
 
-# 3. Analyze current job database (indicates high demand this month)
+# 4. Analyze current job database (indicates high demand this month)
 def analyze_current_demand(supabase: Client):
     logger.info("[*] Querying jobs from database for demand analysis...")
     skill_counts = {}
@@ -163,15 +190,14 @@ def analyze_current_demand(supabase: Client):
     high_paying_jobs = []
     
     try:
-        # Fetch latest 1000 jobs to analyze salaries
-        res = supabase.table("jobs").select("title, company, description, salary, job_url").order("scraped_at", desc=True).limit(1000).execute()
+        # Fetch latest 1000 jobs to analyze min_amount, max_amount, currency, interval
+        res = supabase.table("jobs").select("title, company, description, min_amount, max_amount, interval, currency, job_url").order("scraped_at", desc=True).limit(1000).execute()
         jobs = res.data or []
         
         for job in jobs:
             title = job.get("title") or ""
             company = job.get("company") or ""
             desc = job.get("description") or ""
-            sal_str = job.get("salary") or ""
             url = job.get("job_url") or ""
             
             # Count hiring companies
@@ -184,13 +210,28 @@ def analyze_current_demand(supabase: Client):
                 if skill.lower() in full_text:
                     skill_counts[skill] = skill_counts.get(skill, 0) + 1
             
-            # Parse salary for tracking
-            parsed_sal = parse_salary_value(sal_str)
+            # Parse salary from min_amount, max_amount, interval
+            min_amt = job.get("min_amount")
+            max_amt = job.get("max_amount")
+            interval = job.get("interval") or "yearly"
+            
+            parsed_sal = 0
+            if max_amt:
+                parsed_sal = float(max_amt)
+                if interval.lower() in ["hourly", "hour"]:
+                    parsed_sal *= 2000
+            elif min_amt:
+                parsed_sal = float(min_amt)
+                if interval.lower() in ["hourly", "hour"]:
+                    parsed_sal *= 2000
+            
             if parsed_sal > 80000:
+                cur_symbol = "$" if job.get("currency") in [None, "USD", "$"] else f"{job.get('currency')} "
+                salary_str = f"{cur_symbol}{int(parsed_sal/1000)}k/yr"
                 high_paying_jobs.append({
                     "title": title,
                     "company": company,
-                    "salary_str": sal_str,
+                    "salary_str": salary_str,
                     "parsed_sal": parsed_sal,
                     "url": url,
                     "skills": [s for s in ELITE_SKILLS + COMMON_SKILLS if s.lower() in full_text]
@@ -213,9 +254,10 @@ def compile_forecast():
         print(f"[-] Database connection failed: {e}")
         return
 
-    # Gather data from HN, GitHub, and Supabase Jobs
+    # Gather data from HN, GitHub, YouTube Search, and Supabase Jobs
     hn_topics = scrape_hacker_news()
     git_skills, git_topics = scrape_github_trending()
+    yt_topics, yt_video_count = scrape_youtube_trends()
     db_skills, db_companies, high_paying_jobs = analyze_current_demand(supabase)
 
     # 1. High Demand Skills This Month (trending_skills)
@@ -225,6 +267,9 @@ def compile_forecast():
     for s, c in git_skills.items():
         if s in COMMON_SKILLS:
             combined_demand[s] = combined_demand.get(s, 0) + c
+    for s, c in yt_topics.items():
+        if s in COMMON_SKILLS:
+            combined_demand[s] = combined_demand.get(s, 0) + c * 2
             
     if not combined_demand:
         combined_demand = {"Python": 120, "React": 95, "TypeScript": 85, "AWS": 75, "Docker": 60, "PostgreSQL": 55}
@@ -238,6 +283,9 @@ def compile_forecast():
             learning_demand[s] = learning_demand.get(s, 0) + c
     for s, c in hn_topics.items():
         learning_demand[s] = learning_demand.get(s, 0) + c
+    for s, c in yt_topics.items():
+        if s in ELITE_SKILLS:
+            learning_demand[s] = learning_demand.get(s, 0) + c
         
     if not learning_demand:
         learning_demand = {"Rust": 110, "Zig": 90, "Mojo": 80, "CUDA": 75, "Triton": 65, "WebAssembly": 60}
@@ -317,7 +365,7 @@ def compile_forecast():
         "top_certificates": top_certificates_json,
         "top_learning_skills": top_learning_json,
         "future_trends": future_trends_json,
-        "source_metrics": {"youtube": 10, "reddit": 15}
+        "source_metrics": {"youtube": yt_video_count if yt_video_count > 0 else 10, "reddit": 15}
     }
 
     # 8. Write to Supabase table
